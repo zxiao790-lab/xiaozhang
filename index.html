@@ -2232,6 +2232,8 @@ font-size: 1.1rem;
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- 同步指示器 -->
+<div class="sync-dot" id="syncDot"><div class="spin"></div><span id="syncDotText">同步中…</span></div>
 <script>
 (function() {
 // DOM引用
@@ -2865,16 +2867,15 @@ ${card.source ? `<span class="card-source">📖 ${escapeHTML(card.source)}</span
 </div>
 </div>`;
 cardDiv.addEventListener('click', function(e) {
-if (e.target.closest('.detail-link')) return;
 if (multiSelectMode) {
 toggleMultiSelect(card.id, cardDiv);
 return;
 }
-this.classList.toggle('flipped');
-});
-cardDiv.querySelector('.detail-link')?.addEventListener('click', function(e) {
-e.stopPropagation();
-openDetailPage(this.getAttribute('data-id'));
+if (this.classList.contains('flipped')) {
+openDetailPage(card.id);
+} else {
+this.classList.add('flipped');
+}
 });
 // 长按进入多选模式
 let longPressTimer = null;
@@ -3740,8 +3741,6 @@ init();
 })();
 </script>
 
-<!-- 同步指示器 -->
-<div class="sync-dot" id="syncDot"><div class="spin"></div><span id="syncDotText">同步中…</span></div>
 
 </body>
 </html>
