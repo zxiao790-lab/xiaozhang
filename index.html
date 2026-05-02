@@ -3714,6 +3714,11 @@ if (syncNowBtn) {
     syncNowBtn.addEventListener('click', async function() {
         syncNowBtn.textContent = '⏳ 同步中…';
         syncNowBtn.disabled = true;
+        if (!GIST_TOKEN) {
+        showToast('请先在设置中填写 Gist Token');
+        _updateSyncUI(false, '❌ 未配置 Token');
+        return;
+        }
         try {
             const remote = await gistPull();
             if (remote) {
