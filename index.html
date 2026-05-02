@@ -3605,10 +3605,11 @@ const syncStatusLine = document.getElementById('syncStatusLine');
 const syncNowBtn = document.getElementById('syncNowBtn');
 
 function _showSyncDot(text, isError) {
+    if (!syncDot || !syncDotText) return;
     syncDotText.textContent = text || '同步中…';
     syncDot.className = 'sync-dot visible' + (isError ? ' error' : '');
 }
-function _hideSyncDot() { syncDot.className = 'sync-dot'; }
+function _hideSyncDot() { if (syncDot) syncDot.className = 'sync-dot'; }
 
 function _updateSyncUI(ok, msg) {
     _lastSyncOk = ok;
