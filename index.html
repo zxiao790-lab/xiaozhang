@@ -2863,7 +2863,7 @@ ${card.source ? `<span class="card-source">📖 ${escapeHTML(card.source)}</span
 </div>
 <div class="card-face card-back">
 <div class="card-description">${escapeHTML(card.description || '暂无释义')}</div>
-<span class="detail-link${descTruncated ? '' : ' hidden'}" data-action="detail" data-id="${card.id}">查看全文</span>
+<span class="detail-link" data-action="detail" data-id="${card.id}">查看详情</span>
 </div>
 </div>`;
 cardDiv.addEventListener('click', function(e) {
@@ -2871,11 +2871,11 @@ if (multiSelectMode) {
 toggleMultiSelect(card.id, cardDiv);
 return;
 }
-if (this.classList.contains('flipped')) {
+if (e.target.closest('.detail-link')) {
 openDetailPage(card.id);
-} else {
-this.classList.add('flipped');
+return;
 }
+this.classList.toggle('flipped');
 });
 // 长按进入多选模式
 let longPressTimer = null;
