@@ -1,0 +1,3746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+<title>小张书房 · 知识手札</title>
+
+<!-- PWA 基础配置 -->
+<meta name="theme-color" content="#b8753e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="小张书房">
+<meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="./manifest.json">
+
+<style>
+:root {
+--bg: #f7f4ef;
+--surface: #fffefb;
+--surface-warm: #fdf9f4;
+--text-primary: #2c2416;
+--text-secondary: #5c5347;
+--text-muted: #8c8276;
+--accent: #b8753e;
+--accent-soft: #d9b68c;
+--accent-light: #f2e4d2;
+--accent-dark: #8b5a2e;
+--danger: #c0392b;
+--danger-light: #fce8e6;
+--warning: #e67e22;
+--warning-light: #fef3e8;
+--success: #27ae60;
+--success-light: #eafaf1;
+--border: rgba(140, 130, 118, 0.22);
+--border-light: rgba(140, 130, 118, 0.12);
+--shadow-xs: 0 1px 2px rgba(44, 36, 22, 0.04);
+--shadow-sm: 0 1px 3px rgba(44, 36, 22, 0.06), 0 1px 2px rgba(44, 36, 22, 0.03);
+--shadow-md: 0 4px 16px rgba(44, 36, 22, 0.08), 0 2px 6px rgba(44, 36, 22, 0.05);
+--shadow-lg: 0 10px 30px rgba(44, 36, 22, 0.10), 0 4px 12px rgba(44, 36, 22, 0.06);
+--shadow-xl: 0 18px 48px rgba(44, 36, 22, 0.14), 0 8px 20px rgba(44, 36, 22, 0.08);
+--radius-xs: 8px;
+--radius-sm: 12px;
+--radius-md: 16px;
+--radius-lg: 20px;
+--radius-xl: 24px;
+--radius-full: 28px;
+--transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+--transition-flip: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+--font-serif: 'Georgia', 'Noto Serif SC', 'STSong', 'Songti SC', 'PingFang SC', serif;
+--safe-bottom: env(safe-area-inset-bottom, 16px);
+--bottom-nav-height: 64px;
+}
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+html {
+font-size: 16px;
+-webkit-text-size-adjust: 100%;
+-webkit-tap-highlight-color: transparent;
+scroll-behavior: smooth;
+overscroll-behavior: none;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+background-color: var(--bg);
+background-image:
+radial-gradient(ellipse at 20% 12%, rgba(184, 117, 62, 0.04) 0%, transparent 55%),
+radial-gradient(ellipse at 80% 65%, rgba(184, 117, 62, 0.03) 0%, transparent 55%),
+radial-gradient(ellipse at 50% 90%, rgba(184, 117, 62, 0.05) 0%, transparent 50%);
+min-height: 100vh;
+color: var(--text-primary);
+line-height: 1.6;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+padding-bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 20px);
+padding-top: 0;
+overflow-x: hidden;
+user-select: none;
+-webkit-user-select: none;
+-webkit-overflow-scrolling: touch;
+}
+
+/* 存储状态提示条 */
+.storage-alert {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+z-index: 200;
+padding: 10px 16px;
+text-align: center;
+font-size: 0.75rem;
+font-weight: 600;
+display: none;
+align-items: center;
+justify-content: center;
+gap: 6px;
+cursor: pointer;
+letter-spacing: 0.02em;
+animation: slideDown 0.35s ease-out;
+border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+@keyframes slideDown {
+from {
+transform: translateY(-100%);
+opacity: 0;
+}
+to {
+transform: translateY(0);
+opacity: 1;
+}
+}
+.storage-alert.warning {
+background: var(--warning-light);
+color: var(--warning);
+border-bottom: 2px solid var(--warning);
+display: flex;
+}
+.storage-alert.danger {
+background: var(--danger-light);
+color: var(--danger);
+border-bottom: 2px solid var(--danger);
+display: flex;
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0%,
+100% {
+opacity: 1;
+}
+50% {
+opacity: 0.82;
+}
+}
+.storage-alert .alert-icon {
+font-size: 1rem;
+}
+.storage-alert .alert-link {
+text-decoration: underline;
+cursor: pointer;
+font-weight: 700;
+color: inherit;
+}
+
+/* 头部 */
+.header {
+position: sticky;
+top: 0;
+z-index: 100;
+background: rgba(247, 244, 239, 0.82);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--border-light);
+padding: 10px 16px 8px;
+transition: all var(--transition);
+display: flex;
+align-items: center;
+gap: 10px;
+flex-wrap: nowrap;
+}
+.header-brand {
+display: flex;
+align-items: center;
+gap: 8px;
+flex-shrink: 0;
+}
+.logo-icon {
+width: 36px;
+height: 36px;
+border-radius: var(--radius-xs);
+background: linear-gradient(135deg, #d4a574, #b8753e);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+color: #fff;
+box-shadow: 0 2px 8px rgba(184, 117, 62, 0.3);
+flex-shrink: 0;
+}
+.app-title {
+font-size: 1.05rem;
+font-weight: 700;
+color: var(--text-primary);
+letter-spacing: -0.01em;
+white-space: nowrap;
+}
+.header-spacer {
+flex: 1;
+}
+.header-badge-row {
+display: flex;
+align-items: center;
+gap: 6px;
+flex-shrink: 0;
+}
+.card-count {
+font-size: 0.7rem;
+color: var(--text-muted);
+font-weight: 500;
+background: rgba(140, 130, 118, 0.1);
+padding: 3px 10px;
+border-radius: 14px;
+white-space: nowrap;
+}
+.storage-badge {
+font-size: 0.65rem;
+font-weight: 600;
+padding: 3px 10px;
+border-radius: 14px;
+white-space: nowrap;
+cursor: pointer;
+transition: all var(--transition);
+letter-spacing: 0.02em;
+}
+.storage-badge.safe {
+background: var(--success-light);
+color: var(--success);
+}
+.storage-badge.warning {
+background: var(--warning-light);
+color: var(--warning);
+}
+.storage-badge.danger {
+background: var(--danger-light);
+color: var(--danger);
+animation: pulse 2s infinite;
+}
+.header-icon-btn {
+width: 34px;
+height: 34px;
+border-radius: 50%;
+border: none;
+background: rgba(140, 130, 118, 0.08);
+cursor: pointer;
+font-size: 1rem;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all var(--transition);
+color: var(--text-secondary);
+flex-shrink: 0;
+-webkit-tap-highlight-color: transparent;
+}
+.header-icon-btn:hover {
+background: rgba(140, 130, 118, 0.16);
+color: var(--text-primary);
+}
+.header-icon-btn:active {
+transform: scale(0.9);
+transition: transform 0.1s ease;
+}
+
+/* 搜索栏 */
+.search-container {
+position: sticky;
+top: 52px;
+z-index: 99;
+background: rgba(247, 244, 239, 0.7);
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+padding: 0 16px 8px;
+transition: all var(--transition);
+}
+
+
+/* 主容器 */
+.main-container {
+max-width: 600px;
+margin: 0 auto;
+padding: 6px 12px 10px;
+}
+
+/* 工具栏：类型切换 + 分类下拉 */
+.toolbar-row {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 12px;
+}
+.type-tabs {
+display: flex;
+gap: 2px;
+background: rgba(140, 130, 118, 0.07);
+border-radius: var(--radius-full);
+padding: 3px;
+flex-shrink: 0;
+}
+.type-tab {
+padding: 7px 14px;
+border-radius: var(--radius-full);
+border: none;
+background: transparent;
+cursor: pointer;
+font-size: 0.78rem;
+font-weight: 600;
+color: var(--text-muted);
+transition: all var(--transition);
+font-family: inherit;
+white-space: nowrap;
+letter-spacing: 0.02em;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+-webkit-user-select: none;
+}
+.type-tab.active {
+background: #fff;
+color: var(--text-primary);
+box-shadow: var(--shadow-sm);
+}
+.type-tab:hover:not(.active) {
+color: var(--text-secondary);
+background: rgba(255, 255, 255, 0.5);
+}
+.type-tab:active {
+transform: scale(0.94);
+transition: transform 0.1s ease;
+}
+.category-dropdown-group {
+display: flex;
+align-items: center;
+gap: 4px;
+flex: 1;
+min-width: 0;
+}
+.category-trigger-btn {
+flex: 1;
+min-width: 0;
+padding: 7px 12px;
+border: 1.5px solid var(--border);
+border-radius: var(--radius-full);
+background: var(--surface);
+color: var(--text-primary);
+font-size: 0.76rem;
+font-weight: 500;
+font-family: inherit;
+cursor: pointer;
+text-align: center;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 4px;
+}
+.category-trigger-btn:hover {
+border-color: var(--accent-soft);
+}
+.category-trigger-btn:active {
+transform: scale(0.96);
+}
+.category-trigger-btn .trigger-arrow {
+font-size: 0.6rem;
+color: var(--text-muted);
+flex-shrink: 0;
+}
+.category-manage-btn {
+flex-shrink: 0;
+width: 32px;
+height: 32px;
+border-radius: 50%;
+border: 1.5px dashed var(--border);
+background: transparent;
+cursor: pointer;
+font-size: 0.8rem;
+color: var(--text-muted);
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+}
+.category-manage-btn:hover {
+border-color: var(--accent);
+color: var(--accent);
+}
+.category-manage-btn:active {
+transform: scale(0.88);
+}
+/* 分类底部弹窗 */
+.cat-picker-overlay {
+position: fixed;
+inset: 0;
+z-index: 280;
+background: rgba(44, 36, 22, 0.4);
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.cat-picker-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+.cat-picker-sheet {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+z-index: 281;
+background: var(--surface);
+border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+max-height: 55vh;
+display: flex;
+flex-direction: column;
+transform: translateY(100%);
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cat-picker-sheet.active {
+transform: translateY(0);
+}
+.cat-picker-handle {
+width: 36px;
+height: 4px;
+border-radius: 4px;
+background: rgba(140, 130, 118, 0.25);
+margin: 10px auto 6px;
+flex-shrink: 0;
+}
+.cat-picker-title {
+text-align: center;
+font-size: 0.82rem;
+font-weight: 600;
+color: var(--text-primary);
+padding: 4px 16px 10px;
+flex-shrink: 0;
+}
+.cat-picker-list {
+flex: 1;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+padding: 0 16px 16px;
+scrollbar-width: thin;
+scrollbar-color: rgba(140,130,118,0.15) transparent;
+}
+.cat-picker-list::-webkit-scrollbar {
+width: 4px;
+}
+.cat-picker-list::-webkit-scrollbar-thumb {
+background: rgba(140,130,118,0.15);
+border-radius: 10px;
+}
+.cat-picker-item {
+text-align: center;
+padding: 14px 12px;
+font-size: 0.88rem;
+color: var(--text-secondary);
+cursor: pointer;
+border-radius: var(--radius-sm);
+transition: all 0.15s ease;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+-webkit-user-select: none;
+}
+.cat-picker-item:hover {
+background: rgba(140, 130, 118, 0.05);
+}
+.cat-picker-item:active {
+background: rgba(140, 130, 118, 0.08);
+}
+.cat-picker-item.active {
+color: var(--accent);
+font-weight: 700;
+font-size: 1rem;
+background: var(--accent-light);
+}
+
+/* 卡片网格 */
+.card-grid {
+display: flex;
+flex-direction: column;
+gap: 14px;
+padding-bottom: 8px;
+}
+
+/* 名词卡片 */
+.card {
+perspective: 1200px;
+height: 190px;
+cursor: pointer;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+-webkit-user-select: none;
+animation: cardEnter 0.4s ease-out backwards;
+}
+@keyframes cardEnter {
+from {
+opacity: 0;
+transform: translateY(16px) scale(0.94);
+}
+to {
+opacity: 1;
+transform: translateY(0) scale(1);
+}
+}
+.card.hidden-by-search {
+display: none;
+}
+.card-inner {
+position: relative;
+width: 100%;
+height: 100%;
+transition: transform var(--transition-flip);
+transform-style: preserve-3d;
+will-change: transform;
+}
+.card.flipped .card-inner {
+transform: rotateY(180deg);
+}
+.card-face {
+position: absolute;
+inset: 0;
+backface-visibility: hidden;
+-webkit-backface-visibility: hidden;
+border-radius: var(--radius-md);
+display: flex;
+flex-direction: column;
+padding: 16px 14px;
+overflow: hidden;
+transition: box-shadow var(--transition), transform var(--transition);
+}
+.card-front {
+background: var(--surface);
+border: 1.5px solid var(--border);
+box-shadow: var(--shadow-xs);
+z-index: 2;
+align-items: center;
+justify-content: center;
+gap: 5px;
+}
+.card-front::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+height: 4px;
+background: linear-gradient(90deg, var(--accent), var(--accent-soft), #e8ccaa);
+border-radius: var(--radius-md) var(--radius-md) 0 0;
+opacity: 0.7;
+}
+.card:hover .card-front {
+box-shadow: var(--shadow-md);
+transform: translateY(-1px);
+}
+.card.flipped:hover .card-front {
+transform: none;
+box-shadow: var(--shadow-xs);
+}
+.card.flipped:hover .card-back {
+box-shadow: var(--shadow-md);
+transform: rotateY(180deg) translateY(-1px);
+}
+.card-front .card-category-tag {
+font-size: 0.64rem;
+text-transform: uppercase;
+letter-spacing: 0.06em;
+color: var(--accent);
+font-weight: 600;
+opacity: 0.8;
+background: var(--accent-light);
+padding: 3px 10px;
+border-radius: 12px;
+}
+.card-front .card-name {
+font-size: 1rem;
+font-weight: 700;
+color: var(--text-primary);
+text-align: center;
+line-height: 1.35;
+word-break: break-word;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.card-front .card-source {
+font-size: 0.7rem;
+color: var(--text-muted);
+font-style: italic;
+text-align: center;
+opacity: 0.8;
+margin-top: 2px;
+display: -webkit-box;
+-webkit-line-clamp: 1;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.card-front .flip-hint {
+font-size: 0.65rem;
+color: var(--text-muted);
+opacity: 0;
+transition: opacity 0.3s;
+margin-top: 3px;
+}
+.card:hover .card-front .flip-hint {
+opacity: 0.7;
+}
+.card.flipped:hover .card-front .flip-hint {
+opacity: 0;
+}
+.card-back {
+background: var(--surface-warm);
+border: 1.5px solid var(--border-light);
+box-shadow: var(--shadow-xs);
+transform: rotateY(180deg);
+justify-content: space-between;
+gap: 4px;
+padding: 14px 12px 10px;
+}
+.card-back .card-description {
+font-size: 0.82rem;
+color: var(--text-secondary);
+text-align: left;
+line-height: 1.5;
+flex: 1;
+overflow: hidden;
+word-break: break-word;
+display: -webkit-box;
+-webkit-line-clamp: 5;
+-webkit-box-orient: vertical;
+}
+.card-back .detail-link {
+font-size: 0.68rem;
+color: var(--accent);
+cursor: pointer;
+font-weight: 600;
+text-align: center;
+flex-shrink: 0;
+padding: 4px 0 0;
+letter-spacing: 0.03em;
+transition: color var(--transition);
+}
+.card-back .detail-link:hover {
+color: var(--accent-dark);
+}
+.card-back .detail-link.hidden {
+display: none;
+}
+.btn-icon {
+background: none;
+border: 1.5px solid var(--border);
+padding: 5px 11px;
+border-radius: 16px;
+cursor: pointer;
+font-size: 0.7rem;
+font-weight: 500;
+color: var(--text-secondary);
+transition: all var(--transition);
+font-family: inherit;
+white-space: nowrap;
+letter-spacing: 0.02em;
+-webkit-tap-highlight-color: transparent;
+}
+.btn-icon:hover {
+background: rgba(140, 130, 118, 0.07);
+border-color: rgba(140, 130, 118, 0.3);
+color: var(--text-primary);
+}
+.btn-icon:active {
+transform: scale(0.9);
+transition: transform 0.1s ease;
+}
+.btn-icon.danger:hover {
+background: var(--danger-light);
+border-color: var(--danger);
+color: var(--danger);
+}
+
+/* 句子卡片 */
+.quote-card {
+background: var(--surface);
+border: 1.5px solid var(--border-light);
+border-radius: var(--radius-md);
+padding: 18px 15px 12px;
+position: relative;
+box-shadow: var(--shadow-xs);
+transition: all var(--transition);
+cursor: pointer;
+display: flex;
+flex-direction: column;
+gap: 8px;
+animation: cardEnter 0.4s ease-out backwards;
+-webkit-tap-highlight-color: transparent;
+}
+.quote-card:hover {
+box-shadow: var(--shadow-md);
+transform: translateY(-1px);
+border-color: var(--border);
+}
+.quote-card:active {
+transform: scale(0.97);
+transition: transform 0.1s ease;
+}
+.quote-card::before {
+content: '❝';
+position: absolute;
+top: 4px;
+left: 12px;
+font-size: 2rem;
+color: var(--accent-soft);
+opacity: 0.35;
+font-family: var(--font-serif);
+line-height: 1;
+pointer-events: none;
+}
+.quote-card .quote-content {
+font-size: 0.95rem;
+color: var(--text-primary);
+line-height: 1.6;
+font-family: var(--font-serif);
+padding-left: 4px;
+padding-top: 4px;
+word-break: break-word;
+display: -webkit-box;
+-webkit-line-clamp: 4;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.quote-card .quote-source {
+font-size: 0.74rem;
+color: var(--text-muted);
+text-align: right;
+font-style: italic;
+letter-spacing: 0.03em;
+padding-right: 2px;
+}
+.quote-card .quote-source::before {
+content: '—— ';
+opacity: 0.6;
+}
+.quote-card .quote-actions {
+display: flex;
+gap: 6px;
+justify-content: flex-end;
+flex-shrink: 0;
+}
+.quote-card .quote-category-tag {
+position: absolute;
+top: 10px;
+right: 12px;
+font-size: 0.62rem;
+letter-spacing: 0.05em;
+color: var(--accent);
+font-weight: 600;
+opacity: 0.7;
+background: var(--accent-light);
+padding: 2px 8px;
+border-radius: 10px;
+}
+.quote-card.hidden-by-search {
+display: none;
+}
+
+/* 空状态 */
+.empty-state {
+text-align: center;
+padding: 40px 16px;
+color: var(--text-muted);
+grid-column: 1 / -1;
+}
+.empty-state .empty-icon {
+font-size: 3rem;
+margin-bottom: 10px;
+opacity: 0.5;
+}
+.empty-state .empty-title {
+font-size: 1rem;
+font-weight: 600;
+color: var(--text-secondary);
+margin-bottom: 4px;
+}
+.empty-state .empty-desc {
+font-size: 0.8rem;
+color: var(--text-muted);
+line-height: 1.5;
+}
+
+
+
+/* 底部导航栏 */
+.bottom-nav {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+z-index: 150;
+background: rgba(255, 254, 251, 0.88);
+backdrop-filter: blur(22px);
+-webkit-backdrop-filter: blur(22px);
+border-top: 1px solid var(--border-light);
+padding: 6px 8px calc(6px + var(--safe-bottom));
+display: flex;
+align-items: center;
+justify-content: space-around;
+box-shadow: 0 -2px 16px rgba(44, 36, 22, 0.05);
+}
+.bottom-nav .nav-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 2px;
+cursor: pointer;
+padding: 6px 10px;
+border-radius: var(--radius-sm);
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+-webkit-user-select: none;
+min-width: 52px;
+position: relative;
+}
+.bottom-nav .nav-item .nav-icon {
+font-size: 1.3rem;
+transition: all var(--transition);
+line-height: 1;
+}
+.bottom-nav .nav-item .nav-label {
+font-size: 0.65rem;
+font-weight: 500;
+color: var(--text-muted);
+transition: all var(--transition);
+letter-spacing: 0.02em;
+white-space: nowrap;
+}
+.bottom-nav .nav-item.active .nav-label {
+color: var(--accent);
+font-weight: 700;
+}
+.bottom-nav .nav-item.active .nav-icon {
+transform: translateY(-2px);
+}
+.bottom-nav .nav-item::after {
+content: '';
+position: absolute;
+top: -6px;
+left: 50%;
+transform: translateX(-50%) scaleX(0);
+width: 24px;
+height: 3px;
+background: var(--accent);
+border-radius: 0 0 3px 3px;
+transition: transform var(--transition);
+}
+.bottom-nav .nav-item.active::after {
+transform: translateX(-50%) scaleX(1);
+}
+.bottom-nav .nav-item:active {
+transform: scale(0.88);
+transition: transform 0.1s ease;
+}
+.bottom-nav .nav-item.nav-add {
+position: relative;
+top: -8px;
+}
+.bottom-nav .nav-item.nav-add .nav-icon-circle {
+width: 42px;
+height: 42px;
+border-radius: 50%;
+background: linear-gradient(135deg, #d4a574, #b8753e);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.4rem;
+color: #fff;
+box-shadow: 0 4px 16px rgba(184, 117, 62, 0.35);
+transition: all var(--transition);
+}
+.bottom-nav .nav-item.nav-add:active .nav-icon-circle {
+transform: scale(0.85);
+transition: transform 0.1s ease;
+}
+
+/* 备份提醒气泡 */
+.backup-reminder {
+position: fixed;
+bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 70px);
+left: 12px;
+right: 12px;
+max-width: 400px;
+margin: 0 auto;
+background: #fff;
+border-radius: var(--radius-md);
+box-shadow: var(--shadow-xl);
+padding: 14px 16px;
+z-index: 95;
+display: flex;
+align-items: center;
+gap: 10px;
+transform: translateY(120px);
+opacity: 0;
+transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+pointer-events: none;
+border: 2px solid var(--accent-soft);
+}
+.backup-reminder.show {
+transform: translateY(0);
+opacity: 1;
+pointer-events: all;
+}
+.backup-reminder .reminder-icon {
+font-size: 1.8rem;
+flex-shrink: 0;
+}
+.backup-reminder .reminder-text {
+flex: 1;
+font-size: 0.78rem;
+color: var(--text-secondary);
+line-height: 1.4;
+}
+.backup-reminder .reminder-text strong {
+color: var(--text-primary);
+}
+.backup-reminder .reminder-close {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 0.9rem;
+color: var(--text-muted);
+padding: 4px;
+flex-shrink: 0;
+-webkit-tap-highlight-color: transparent;
+}
+.backup-reminder .reminder-export-btn {
+display: block;
+margin-top: 6px;
+background: var(--accent);
+color: #fff;
+border: none;
+padding: 6px 14px;
+border-radius: 14px;
+cursor: pointer;
+font-size: 0.72rem;
+font-weight: 600;
+letter-spacing: 0.02em;
+transition: all var(--transition);
+}
+.backup-reminder .reminder-export-btn:hover {
+background: var(--accent-dark);
+}
+
+/* 模态弹窗 */
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(44, 36, 22, 0.45);
+backdrop-filter: blur(6px);
+-webkit-backdrop-filter: blur(6px);
+z-index: 250;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 20px;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+.modal-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+.modal {
+background: var(--surface);
+border-radius: var(--radius-xl);
+padding: 24px 20px 18px;
+width: 100%;
+max-width: 460px;
+box-shadow: var(--shadow-xl);
+transform: translateY(20px) scale(0.94);
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+max-height: 85vh;
+overflow-y: auto;
+position: relative;
+}
+.modal-overlay.active .modal {
+transform: translateY(0) scale(1);
+}
+.modal-title {
+font-size: 1.1rem;
+font-weight: 700;
+margin-bottom: 16px;
+color: var(--text-primary);
+letter-spacing: -0.01em;
+padding-right: 30px;
+}
+.modal-close-btn {
+position: absolute;
+top: 12px;
+right: 12px;
+width: 34px;
+height: 34px;
+border-radius: 50%;
+border: none;
+background: rgba(140, 130, 118, 0.1);
+cursor: pointer;
+font-size: 0.95rem;
+color: var(--text-muted);
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+z-index: 5;
+}
+.modal-close-btn:hover {
+background: rgba(140, 130, 118, 0.2);
+color: var(--text-primary);
+}
+.modal-close-btn:active {
+transform: scale(0.85);
+transition: transform 0.1s ease;
+}
+.form-group {
+margin-bottom: 13px;
+}
+.form-group label {
+display: block;
+font-size: 0.76rem;
+font-weight: 600;
+color: var(--text-secondary);
+margin-bottom: 4px;
+letter-spacing: 0.02em;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+width: 100%;
+padding: 10px 14px;
+border: 2px solid var(--border);
+border-radius: var(--radius-sm);
+font-size: 0.88rem;
+font-family: inherit;
+background: var(--surface);
+color: var(--text-primary);
+transition: all var(--transition);
+outline: none;
+resize: vertical;
+-webkit-appearance: none;
+}
+.form-group .textarea-wrap {
+position: relative;
+}
+.form-group .textarea-wrap textarea {
+min-height: 44px;
+max-height: 160px;
+line-height: 1.55;
+resize: none;
+overflow-y: auto;
+padding-right: 40px;
+transition: min-height 0.2s ease;
+}
+.form-group .textarea-wrap textarea.expanded {
+min-height: 44px;
+max-height: none;
+}
+.form-group .textarea-expand-btn {
+position: absolute;
+top: 8px;
+right: 8px;
+width: 26px;
+height: 26px;
+border-radius: 6px;
+border: 1px solid var(--border);
+background: var(--surface);
+cursor: pointer;
+font-size: 0.75rem;
+display: none;
+align-items: center;
+justify-content: center;
+color: var(--text-muted);
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+z-index: 2;
+}
+.form-group .textarea-wrap textarea:focus ~ .textarea-expand-btn,
+.form-group .textarea-wrap textarea:not(:placeholder-shown) ~ .textarea-expand-btn {
+display: flex;
+}
+.form-group .textarea-expand-btn:hover {
+background: var(--accent-light);
+color: var(--accent);
+border-color: var(--accent-soft);
+}
+.form-group .textarea-expand-btn:active {
+transform: scale(0.88);
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+border-color: var(--accent);
+box-shadow: 0 0 0 5px rgba(184, 117, 62, 0.05);
+background: #fff;
+}
+.form-group select {
+cursor: pointer;
+appearance: none;
+-webkit-appearance: none;
+background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c8276' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+background-repeat: no-repeat;
+background-position: right 12px center;
+padding-right: 36px;
+}
+.modal-actions {
+display: flex;
+gap: 8px;
+justify-content: flex-end;
+margin-top: 4px;
+flex-wrap: wrap;
+}
+.btn {
+padding: 10px 20px;
+border-radius: var(--radius-full);
+font-size: 0.82rem;
+font-weight: 600;
+cursor: pointer;
+border: 2px solid transparent;
+transition: all var(--transition);
+font-family: inherit;
+letter-spacing: 0.02em;
+-webkit-tap-highlight-color: transparent;
+}
+.btn:active {
+transform: scale(0.9);
+transition: transform 0.1s ease;
+}
+.btn-primary {
+background: var(--accent);
+color: #fff;
+border-color: var(--accent);
+box-shadow: 0 2px 10px rgba(184, 117, 62, 0.25);
+}
+.btn-primary:hover {
+background: var(--accent-dark);
+border-color: var(--accent-dark);
+box-shadow: 0 4px 16px rgba(184, 117, 62, 0.35);
+transform: translateY(-1px);
+}
+.btn-secondary {
+background: transparent;
+color: var(--text-secondary);
+border-color: var(--border);
+}
+.btn-secondary:hover {
+background: rgba(140, 130, 118, 0.05);
+border-color: rgba(140, 130, 118, 0.35);
+color: var(--text-primary);
+}
+.btn-sm {
+padding: 6px 14px;
+font-size: 0.72rem;
+border-radius: 16px;
+}
+/* 详情页面 */
+.detail-page {
+position: fixed;
+inset: 0;
+z-index: 260;
+background: var(--bg);
+display: flex;
+flex-direction: column;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.detail-page.active {
+opacity: 1;
+visibility: visible;
+}
+.detail-page-header {
+flex-shrink: 0;
+background: rgba(255, 254, 251, 0.92);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--border-light);
+padding: 14px 16px 12px;
+position: relative;
+z-index: 2;
+}
+.detail-page-header .detail-name {
+font-size: 1.2rem;
+font-weight: 700;
+color: var(--text-primary);
+margin-bottom: 6px;
+line-height: 1.35;
+word-break: break-word;
+}
+.detail-page-header .detail-meta {
+font-size: 0.74rem;
+color: var(--text-muted);
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+align-items: center;
+}
+.detail-page-header .detail-meta span {
+background: rgba(140, 130, 118, 0.07);
+padding: 3px 10px;
+border-radius: 12px;
+}
+.detail-page-close {
+position: absolute;
+top: 12px;
+right: 12px;
+width: 32px;
+height: 32px;
+border-radius: 50%;
+border: none;
+background: rgba(140, 130, 118, 0.1);
+cursor: pointer;
+font-size: 1rem;
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--text-secondary);
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+}
+.detail-page-close:hover {
+background: rgba(140, 130, 118, 0.18);
+color: var(--text-primary);
+}
+.detail-page-close:active {
+transform: scale(0.88);
+}
+.detail-page-body {
+flex: 1;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+padding: 16px;
+}
+.detail-page-body .detail-body {
+font-size: 0.9rem;
+color: var(--text-secondary);
+line-height: 1.8;
+white-space: pre-wrap;
+word-break: break-word;
+background: var(--surface-warm);
+padding: 16px;
+border-radius: var(--radius-sm);
+border: 1px solid var(--border-light);
+}
+.detail-page-body .detail-body.quote-style {
+font-family: var(--font-serif);
+font-size: 1.05rem;
+text-align: center;
+padding: 20px 16px;
+line-height: 1.75;
+}
+.detail-page-body .detail-note {
+margin-top: 12px;
+font-size: 0.84rem;
+color: var(--text-muted);
+line-height: 1.65;
+padding: 12px 14px;
+background: rgba(140, 130, 118, 0.04);
+border-radius: var(--radius-sm);
+border: 1px dashed var(--border);
+}
+.detail-page-body .detail-note-label {
+font-size: 0.72rem;
+font-weight: 600;
+color: var(--accent);
+margin-bottom: 4px;
+letter-spacing: 0.03em;
+}
+.detail-page-footer {
+flex-shrink: 0;
+padding: 10px 16px;
+padding-bottom: calc(10px + var(--safe-bottom));
+background: rgba(255, 254, 251, 0.92);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-top: 1px solid var(--border-light);
+display: flex;
+gap: 8px;
+justify-content: space-between;
+}
+.category-list {
+list-style: none;
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+margin-bottom: 12px;
+}
+.category-list li {
+display: flex;
+align-items: center;
+gap: 4px;
+background: rgba(140, 130, 118, 0.06);
+padding: 5px 12px;
+border-radius: 16px;
+font-size: 0.76rem;
+color: var(--text-secondary);
+}
+.category-list li .del-cat-btn {
+background: none;
+border: none;
+cursor: pointer;
+color: var(--text-muted);
+font-size: 0.8rem;
+padding: 0 2px;
+line-height: 1;
+transition: color var(--transition);
+-webkit-tap-highlight-color: transparent;
+}
+.category-list li .del-cat-btn:hover {
+color: var(--danger);
+}
+.settings-section {
+margin-bottom: 14px;
+}
+.settings-section h4 {
+font-size: 0.82rem;
+color: var(--text-primary);
+margin-bottom: 6px;
+letter-spacing: 0.02em;
+}
+.settings-row {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 6px;
+font-size: 0.76rem;
+color: var(--text-secondary);
+}
+.settings-row input[type="number"] {
+width: 55px;
+padding: 5px 8px;
+border: 1.5px solid var(--border);
+border-radius: 8px;
+text-align: center;
+font-family: inherit;
+font-size: 0.76rem;
+-webkit-appearance: none;
+}
+.toggle-switch {
+position: relative;
+width: 46px;
+height: 26px;
+flex-shrink: 0;
+}
+.toggle-switch input {
+opacity: 0;
+width: 0;
+height: 0;
+}
+.toggle-slider {
+position: absolute;
+inset: 0;
+background: rgba(140, 130, 118, 0.25);
+border-radius: 26px;
+cursor: pointer;
+transition: all var(--transition);
+}
+.toggle-slider::before {
+content: '';
+position: absolute;
+width: 22px;
+height: 22px;
+left: 2px;
+top: 2px;
+background: #fff;
+border-radius: 50%;
+transition: all var(--transition);
+box-shadow: var(--shadow-xs);
+}
+.toggle-switch input:checked+.toggle-slider {
+background: var(--accent);
+}
+.toggle-switch input:checked+.toggle-slider::before {
+transform: translateX(20px);
+}
+.toast {
+position: fixed;
+bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 70px);
+left: 50%;
+transform: translateX(-50%);
+background: #2c2416;
+color: #fff;
+padding: 10px 22px;
+border-radius: 20px;
+font-size: 0.78rem;
+z-index: 300;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.3s;
+white-space: nowrap;
+letter-spacing: 0.03em;
+box-shadow: var(--shadow-lg);
+}
+.toast.show {
+opacity: 1;
+pointer-events: auto;
+}
+#importFileInput {
+display: none;
+}
+/* 同步指示器 */
+.sync-dot {
+position: fixed;
+bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 10px);
+right: 14px;
+z-index: 400;
+display: flex;
+align-items: center;
+gap: 5px;
+background: var(--surface);
+border: 1px solid var(--border-light);
+border-radius: 20px;
+padding: 5px 10px;
+box-shadow: var(--shadow-md);
+font-size: 0.7rem;
+color: var(--text-muted);
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.3s;
+}
+.sync-dot.visible { opacity: 1; }
+.sync-dot.error { color: var(--danger); border-color: var(--danger-light); background: var(--danger-light); }
+.sync-dot .spin {
+width: 12px; height: 12px;
+border: 2px solid var(--border);
+border-top-color: var(--accent);
+border-radius: 50%;
+animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* 同步状态区 */
+.sync-section {
+background: var(--surface-warm);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 12px 14px;
+margin-top: 10px;
+font-size: 0.76rem;
+}
+.sync-section p { margin: 4px 0; color: var(--text-secondary); }
+.sync-section .sync-ok { color: var(--success); }
+.sync-section .sync-err { color: var(--danger); }
+
+/* 安装指引 */
+.install-guide {
+background: var(--surface-warm);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 10px 14px;
+margin-top: 10px;
+font-size: 0.76rem;
+}
+.install-guide p {
+margin-bottom: 6px;
+color: var(--text-secondary);
+}
+.install-guide ol {
+padding-left: 18px;
+margin: 4px 0;
+}
+.install-guide li {
+margin: 3px 0;
+color: var(--text-primary);
+}
+.install-guide .guide-note {
+font-size: 0.7rem;
+color: var(--accent);
+margin-top: 6px;
+border-top: 1px dashed var(--border);
+padding-top: 4px;
+}
+
+/* 备份页面 */
+.backup-page {
+display: none;
+text-align: center;
+padding: 20px 12px;
+}
+.backup-page.visible {
+display: block;
+}
+.backup-page .backup-card {
+background: var(--surface);
+border-radius: var(--radius-md);
+padding: 20px 16px;
+margin-bottom: 14px;
+box-shadow: var(--shadow-xs);
+border: 1px solid var(--border-light);
+text-align: left;
+}
+.backup-page .backup-card h3 {
+font-size: 0.95rem;
+margin-bottom: 8px;
+color: var(--text-primary);
+}
+.backup-page .backup-card p {
+font-size: 0.78rem;
+color: var(--text-muted);
+line-height: 1.5;
+margin-bottom: 10px;
+}
+.backup-page .big-btn {
+display: block;
+width: 100%;
+padding: 14px;
+border-radius: var(--radius-md);
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+border: none;
+transition: all var(--transition);
+font-family: inherit;
+letter-spacing: 0.02em;
+-webkit-tap-highlight-color: transparent;
+margin-bottom: 8px;
+}
+.backup-page .big-btn.export-btn {
+background: var(--accent);
+color: #fff;
+box-shadow: 0 4px 14px rgba(184, 117, 62, 0.25);
+}
+.backup-page .big-btn.export-btn:hover {
+background: var(--accent-dark);
+}
+.backup-page .big-btn.import-btn {
+background: transparent;
+color: var(--text-secondary);
+border: 2px solid var(--border);
+}
+.backup-page .big-btn.import-btn:hover {
+border-color: var(--accent-soft);
+color: var(--text-primary);
+}
+.backup-page .big-btn:active {
+transform: scale(0.94);
+transition: transform 0.1s ease;
+}
+
+/* 设置页面 */
+.settings-page {
+display: none;
+padding: 10px 12px;
+}
+.settings-page.visible {
+display: block;
+}
+
+/* 书童搜索页面 */
+.search-page {
+display: none;
+padding: 10px 12px;
+}
+.search-page.visible {
+display: block;
+}
+.search-page-input-wrap {
+display: flex;
+align-items: center;
+gap: 8px;
+background: var(--surface);
+border: 1.5px solid var(--border);
+border-radius: var(--radius-full);
+padding: 8px 14px;
+transition: border-color var(--transition), box-shadow var(--transition);
+margin-bottom: 14px;
+}
+.search-page-input-wrap:focus-within {
+border-color: var(--accent);
+box-shadow: 0 0 0 4px rgba(184, 117, 62, 0.06);
+}
+.search-page-input-wrap .search-input {
+flex: 1;
+border: none;
+background: transparent;
+font-size: 0.88rem;
+color: var(--text-primary);
+outline: none;
+font-family: inherit;
+}
+.search-page-input-wrap .search-input::placeholder {
+color: var(--text-muted);
+}
+.search-page-input-wrap .search-clear {
+display: none;
+background: none;
+border: none;
+cursor: pointer;
+font-size: 0.9rem;
+color: var(--text-muted);
+padding: 2px;
+-webkit-tap-highlight-color: transparent;
+}
+.search-page-input-wrap .search-clear.visible {
+display: block;
+}
+.search-page-results {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.search-result-item {
+background: var(--surface);
+border: 1.5px solid var(--border-light);
+border-radius: var(--radius-md);
+padding: 14px 16px;
+cursor: pointer;
+transition: all var(--transition);
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+.search-result-item:hover {
+border-color: var(--accent-soft);
+box-shadow: var(--shadow-sm);
+}
+.search-result-item:active {
+transform: scale(0.98);
+}
+.search-result-item .result-header {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.search-result-item .result-type-badge {
+font-size: 0.6rem;
+font-weight: 600;
+padding: 2px 8px;
+border-radius: 10px;
+flex-shrink: 0;
+letter-spacing: 0.03em;
+}
+.search-result-item .result-type-badge.card-type {
+background: var(--accent-light);
+color: var(--accent);
+}
+.search-result-item .result-type-badge.quote-type {
+background: rgba(39, 174, 96, 0.1);
+color: #27ae60;
+}
+.search-result-item .result-title {
+font-size: 0.88rem;
+font-weight: 600;
+color: var(--text-primary);
+flex: 1;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.search-result-item .result-snippet {
+font-size: 0.78rem;
+color: var(--text-muted);
+line-height: 1.5;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.search-result-item .result-snippet mark {
+background: rgba(192, 57, 43, 0.12);
+color: var(--danger);
+font-weight: 600;
+padding: 0 1px;
+border-radius: 2px;
+}
+.search-result-item .result-category {
+font-size: 0.68rem;
+color: var(--text-muted);
+margin-top: 2px;
+}
+.search-empty-state {
+text-align: center;
+padding: 30px 16px;
+color: var(--text-muted);
+}
+.search-empty-state .empty-icon {
+font-size: 2.5rem;
+margin-bottom: 8px;
+opacity: 0.5;
+}
+.search-empty-state .empty-title {
+font-size: 0.9rem;
+font-weight: 600;
+color: var(--text-secondary);
+margin-bottom: 4px;
+}
+.search-empty-state .empty-desc {
+font-size: 0.78rem;
+}
+
+/* 多选模式 */
+.card.multi-selected, .quote-card.multi-selected {
+outline: 2.5px solid var(--accent);
+outline-offset: -2px;
+background: rgba(184, 117, 62, 0.04);
+}
+.card.multi-selected::after, .quote-card.multi-selected::after {
+content: '✓';
+position: absolute;
+top: 8px;
+left: 8px;
+width: 22px;
+height: 22px;
+border-radius: 50%;
+background: var(--accent);
+color: #fff;
+font-size: 0.7rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 5;
+box-shadow: 0 2px 6px rgba(184, 117, 62, 0.3);
+}
+.multi-select-bar {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+z-index: 200;
+background: rgba(255, 254, 251, 0.97);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--border-light);
+padding: 12px 16px;
+padding-top: calc(12px + var(--safe-area-inset-top, 0px));
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+transform: translateY(-100%);
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.multi-select-bar.active {
+transform: translateY(0);
+}
+.multi-select-bar .select-count {
+font-size: 0.88rem;
+font-weight: 700;
+color: var(--text-primary);
+}
+.multi-select-bar .select-actions {
+display: flex;
+gap: 8px;
+}
+.multi-select-bar .btn-cancel-select {
+padding: 8px 16px;
+border-radius: var(--radius-full);
+border: 1.5px solid var(--border);
+background: transparent;
+color: var(--text-secondary);
+font-size: 0.78rem;
+font-weight: 600;
+cursor: pointer;
+font-family: inherit;
+transition: all var(--transition);
+-webkit-tap-highlight-color: transparent;
+}
+.multi-select-bar .btn-cancel-select:active {
+transform: scale(0.92);
+}
+.multi-select-bar .btn-delete-select {
+padding: 8px 16px;
+border-radius: var(--radius-full);
+border: none;
+background: var(--danger);
+color: #fff;
+font-size: 0.78rem;
+font-weight: 600;
+cursor: pointer;
+font-family: inherit;
+transition: all var(--transition);
+box-shadow: 0 2px 8px rgba(192, 57, 43, 0.25);
+-webkit-tap-highlight-color: transparent;
+}
+.multi-select-bar .btn-delete-select:active {
+transform: scale(0.92);
+}
+.multi-select-bar .btn-delete-select:disabled {
+opacity: 0.4;
+cursor: not-allowed;
+}
+
+/* 全屏文本编辑覆盖层 */
+.fullscreen-editor {
+position: fixed;
+inset: 0;
+z-index: 300;
+background: var(--bg);
+display: flex;
+flex-direction: column;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.fullscreen-editor.active {
+opacity: 1;
+visibility: visible;
+}
+.fullscreen-editor-header {
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px 16px;
+padding-top: calc(14px + var(--safe-area-inset-top, 0px));
+border-bottom: 1px solid var(--border-light);
+background: rgba(255, 254, 251, 0.95);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+}
+.fullscreen-editor-header .editor-title {
+font-size: 0.88rem;
+font-weight: 600;
+color: var(--text-primary);
+}
+.fullscreen-editor-header .editor-done-btn {
+padding: 7px 16px;
+border-radius: var(--radius-full);
+border: none;
+background: var(--accent);
+color: #fff;
+font-size: 0.78rem;
+font-weight: 600;
+cursor: pointer;
+font-family: inherit;
+-webkit-tap-highlight-color: transparent;
+}
+.fullscreen-editor-header .editor-done-btn:active {
+transform: scale(0.92);
+}
+.fullscreen-editor textarea {
+flex: 1;
+width: 100%;
+border: none;
+background: transparent;
+font-size: 0.92rem;
+line-height: 1.7;
+color: var(--text-primary);
+padding: 16px;
+outline: none;
+resize: none;
+font-family: inherit;
+-webkit-appearance: none;
+}
+
+/* 添加类型选择弹窗 */
+.add-type-overlay {
+position: fixed;
+inset: 0;
+z-index: 270;
+background: rgba(44, 36, 22, 0.35);
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.add-type-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+.add-type-popup {
+position: fixed;
+bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 12px);
+left: 50%;
+transform: translateX(-50%) translateY(20px) scale(0.92);
+z-index: 271;
+background: var(--surface);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-xl);
+padding: 8px;
+display: flex;
+flex-direction: column;
+gap: 4px;
+min-width: 180px;
+opacity: 0;
+visibility: hidden;
+transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.add-type-popup.active {
+opacity: 1;
+visibility: visible;
+transform: translateX(-50%) translateY(0) scale(1);
+}
+.add-type-option {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 12px 16px;
+border-radius: var(--radius-sm);
+border: none;
+background: transparent;
+cursor: pointer;
+font-size: 0.88rem;
+font-weight: 600;
+color: var(--text-primary);
+font-family: inherit;
+transition: all 0.15s ease;
+-webkit-tap-highlight-color: transparent;
+white-space: nowrap;
+}
+.add-type-option:hover {
+background: rgba(140, 130, 118, 0.06);
+}
+.add-type-option:active {
+background: rgba(140, 130, 118, 0.1);
+transform: scale(0.96);
+}
+.add-type-option .option-icon {
+font-size: 1.1rem;
+width: 28px;
+text-align: center;
+flex-shrink: 0;
+}
+
+/* 响应式微调 */
+@media (max-width: 380px) {
+.card {
+height: 170px;
+}
+.card-face {
+padding: 12px 10px;
+}
+.card-front .card-name {
+font-size: 0.9rem;
+}
+.quote-card .quote-content {
+font-size: 0.85rem;
+}
+.type-tab {
+padding: 7px 14px;
+font-size: 0.76rem;
+}
+.category-pill {
+padding: 5px 10px;
+font-size: 0.7rem;
+}
+.bottom-nav .nav-item .nav-label {
+font-size: 0.6rem;
+}
+.bottom-nav .nav-item .nav-icon {
+font-size: 1.1rem;
+}
+}
+</style>
+</head>
+<body>
+
+<!-- 存储状态提示条 -->
+<div class="storage-alert" id="storageAlert">
+<span class="alert-icon"></span>
+<span class="alert-text"></span>
+</div>
+
+<!-- 头部 -->
+<header class="header" id="mainHeader">
+<div class="header-brand">
+<div class="logo-icon">📝</div>
+<h1 class="app-title">小张书房</h1>
+</div>
+<div class="header-spacer"></div>
+<div class="header-badge-row">
+<span class="card-count" id="cardCount">共 0 条</span>
+<span class="storage-badge safe" id="storageBadge" title="点击导出备份">0 B / ~50 MB</span>
+</div>
+</header>
+
+<!-- 主内容 -->
+<main class="main-container" id="mainContent">
+<!-- 工具栏：类型切换 + 分类下拉 -->
+<div class="toolbar-row">
+<div class="type-tabs" id="typeTabs">
+<button class="type-tab active" data-type="card">📋 名词卡片</button>
+<button class="type-tab" data-type="quote">💬 句子收藏</button>
+</div>
+<div class="category-dropdown-group">
+<button class="category-trigger-btn" id="categoryTriggerBtn">
+<span id="categoryTriggerLabel">全部</span>
+<span class="trigger-arrow">▾</span>
+</button>
+<button class="category-manage-btn" id="categoryManageBtn" title="管理分类">⚙</button>
+</div>
+</div>
+<!-- 内容区 -->
+<div class="card-grid" id="contentGrid"></div>
+</main>
+
+<!-- 备份页面 -->
+<div class="backup-page" id="backupPage">
+<div style="text-align:center;padding:10px 0 16px;">
+<span style="font-size:2.5rem;">💾</span>
+<h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-top:4px;">数据备份中心</h2>
+<p style="font-size:0.78rem;color:var(--text-muted);">自动提醒 + 手动备份，双重保障</p>
+</div>
+<div class="backup-card">
+<h3>📥 导出备份文件</h3>
+<p>将所有卡片、句子、分类数据导出为JSON文件，可保存到手机存储或云端。建议定期导出。</p>
+<button class="big-btn export-btn" id="backupPageExportBtn">📥 立即导出备份</button>
+</div>
+<div class="backup-card">
+<h3>📤 从备份恢复</h3>
+<p>选择之前导出的备份文件（.json），恢复全部数据。注意：当前数据将被覆盖。</p>
+<button class="big-btn import-btn" id="backupPageImportBtn">📤 选择备份文件导入</button>
+<input type="file" id="importFileInput" accept=".json">
+</div>
+<div class="backup-card" style="text-align:center;">
+<h3>📊 存储状态</h3>
+<p id="backupStorageInfo" style="font-size:0.85rem;font-weight:600;color:var(--text-primary);"></p>
+<p style="font-size:0.7rem;color:var(--text-muted);">App模式提供更大存储容量（~50 MB）</p>
+</div>
+</div>
+
+<!-- 设置页面 -->
+<div class="settings-page" id="settingsPage">
+<div style="text-align:center;padding:10px 0 16px;">
+<span style="font-size:2.5rem;">⚙️</span>
+<h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-top:4px;">设置</h2>
+</div>
+<div class="settings-section">
+<h4>📊 新增内容提醒</h4>
+<div class="settings-row">
+<span>每新增</span>
+<input type="number" id="setCountThreshold" min="5" max="500" value="20">
+<span>条内容时提醒</span>
+</div>
+</div>
+<div class="settings-section">
+<h4>📅 定期提醒</h4>
+<div class="settings-row">
+<span>每</span>
+<input type="number" id="setDayThreshold" min="1" max="90" value="7">
+<span>天未导出时提醒</span>
+</div>
+</div>
+<div class="settings-section">
+<h4>🔔 启用提醒</h4>
+<div class="settings-row" style="justify-content:space-between;">
+<span>启用备份提醒功能</span>
+<label class="toggle-switch">
+<input type="checkbox" id="setReminderEnabled" checked>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<div class="settings-section" id="installAppSection" style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 6px;">
+<h4>☁️ 云端同步</h4>
+<div class="sync-section" id="syncSection">
+<p id="syncStatusLine">未配置同步</p>
+</div>
+<button class="btn btn-primary" id="syncNowBtn" style="width:100%; margin-top: 8px;">🔄 立即同步</button>
+</div>
+<div class="modal-actions" style="margin-top:10px;">
+<button class="btn btn-secondary btn-sm" id="settingsResetBtn">恢复默认</button>
+<button class="btn btn-primary btn-sm" id="settingsSaveBtn">保存设置</button>
+</div>
+</div>
+
+
+
+<!-- 底部导航栏 -->
+<!-- 多选操作栏 -->
+<div class="multi-select-bar" id="multiSelectBar">
+<span class="select-count" id="multiSelectCount">已选 0 项</span>
+<div class="select-actions">
+<button class="btn-cancel-select" id="multiSelectCancel">取消</button>
+<button class="btn-delete-select" id="multiSelectDelete" disabled>删除</button>
+</div>
+</div>
+
+<!-- 添加类型选择 -->
+<div class="add-type-overlay" id="addTypeOverlay"></div>
+<div class="add-type-popup" id="addTypePopup">
+<button class="add-type-option" id="addTypeCard">
+<span class="option-icon">📋</span>
+<span>添加名词</span>
+</button>
+<button class="add-type-option" id="addTypeQuote">
+<span class="option-icon">💬</span>
+<span>添加句子</span>
+</button>
+</div>
+
+<nav class="bottom-nav" id="bottomNav">
+<div class="nav-item active" data-page="main">
+<span class="nav-icon">🧠</span>
+<span class="nav-label">记忆中心</span>
+</div>
+<div class="nav-item" data-page="search">
+<span class="nav-icon">🔍</span>
+<span class="nav-label">书童搜索</span>
+</div>
+<div class="nav-item nav-add" id="bottomNavAdd">
+<span class="nav-icon-circle">＋</span>
+<span class="nav-label" style="font-size:0.6rem;">添加</span>
+</div>
+<div class="nav-item" data-page="backup">
+<span class="nav-icon">💾</span>
+<span class="nav-label">备份</span>
+</div>
+<div class="nav-item" data-page="settings">
+<span class="nav-icon">⚙️</span>
+<span class="nav-label">设置</span>
+</div>
+</nav>
+
+<!-- 备份提醒气泡 -->
+<div class="backup-reminder" id="backupReminder">
+<span class="reminder-icon">💾</span>
+<div class="reminder-text">
+<strong>建议备份数据</strong><br>
+<span id="reminderReason">你已经新增了不少内容</span>
+<button class="reminder-export-btn" id="reminderExportBtn">立即导出备份</button>
+</div>
+<button class="reminder-close" id="reminderClose">✕</button>
+</div>
+
+<!-- 详情页面 -->
+<div class="detail-page" id="detailPage">
+<div class="detail-page-header">
+<button class="detail-page-close" id="detailPageClose">✕</button>
+<div class="detail-name" id="detailPageName"></div>
+<div class="detail-meta" id="detailPageMeta"></div>
+</div>
+<div class="detail-page-body" id="detailPageBody"></div>
+<div class="detail-page-footer">
+<button class="btn btn-sm" id="detailPageDeleteBtn" style="background:var(--danger);color:#fff;border-color:var(--danger);">✕ 删除</button>
+<button class="btn btn-secondary btn-sm" id="detailPageEditBtn">✎ 编辑</button>
+</div>
+</div>
+
+<!-- 表单弹窗 -->
+<div class="modal-overlay" id="formModalOverlay">
+<div class="modal" id="formModal">
+<button class="modal-close-btn" id="formModalClose">✕</button>
+<h2 class="modal-title" id="formModalTitle">添加名词卡片</h2>
+<div class="form-group" id="formCategoryGroup">
+<label for="formCategory">分类</label>
+<select id="formCategory"></select>
+</div>
+<div class="form-group" id="formNameGroup">
+<label for="formName">名称</label>
+<input type="text" id="formName" placeholder="例如：破窗效应" autocomplete="off">
+</div>
+<div class="form-group" id="formSourceGroup">
+<label for="formSource">来源书籍（可选）</label>
+<input type="text" id="formSource" placeholder="例如：《社会心理学》" autocomplete="off">
+</div>
+<div class="form-group" id="formDescGroup">
+<label for="formDesc">释义</label>
+<div class="textarea-wrap"><textarea id="formDesc" placeholder="写下详细释义…" data-editor-label="释义"></textarea><button class="textarea-expand-btn" type="button" title="全屏编辑">⛶</button></div>
+</div>
+<div class="form-group" id="formQuoteContentGroup" style="display:none;">
+<label for="formQuoteContent">句子内容</label>
+<div class="textarea-wrap"><textarea id="formQuoteContent" placeholder="输入你想收藏的句子…" data-editor-label="句子内容"></textarea><button class="textarea-expand-btn" type="button" title="全屏编辑">⛶</button></div>
+</div>
+<div class="form-group" id="formQuoteSourceGroup" style="display:none;">
+<label for="formQuoteSource">来源（书籍或人物）</label>
+<input type="text" id="formQuoteSource" placeholder="例如：鲁迅 / 《活着》" autocomplete="off">
+</div>
+<div class="form-group" id="formNoteGroup" style="display:none;">
+<label for="formNote">个人笔记（可选）</label>
+<div class="textarea-wrap"><textarea id="formNote" placeholder="关于这句话的思考…" data-editor-label="个人笔记"></textarea><button class="textarea-expand-btn" type="button" title="全屏编辑">⛶</button></div>
+</div>
+<div class="modal-actions">
+<button class="btn btn-secondary" id="formCancel">取消</button>
+<button class="btn btn-primary" id="formSave">保存</button>
+</div>
+</div>
+</div>
+
+<!-- 配额警告弹窗 -->
+<div class="modal-overlay" id="quotaModalOverlay">
+<div class="modal" id="quotaModal">
+<div style="text-align:center;font-size:2.5rem;margin-bottom:10px;">⚠️</div>
+<h2 class="modal-title" style="text-align:center;">存储空间不足</h2>
+<p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:14px;text-align:center;line-height:1.6;">
+浏览器的本地存储空间已接近上限，继续添加可能导致数据丢失。<br>
+<strong>请立即导出备份文件！</strong>
+</p>
+<div class="modal-actions" style="justify-content:center;">
+<button class="btn btn-primary" id="quotaExportBtn">📥 立即导出备份</button>
+<button class="btn btn-secondary" id="quotaCloseBtn">稍后处理</button>
+</div>
+</div>
+</div>
+
+<!-- 分类管理弹窗 -->
+<div class="modal-overlay" id="catModalOverlay">
+<div class="modal" id="catModal">
+<button class="modal-close-btn" id="catModalClose">✕</button>
+<h2 class="modal-title">管理分类</h2>
+<ul class="category-list" id="catList"></ul>
+<div class="form-group" style="display:flex;gap:8px;align-items:flex-end;">
+<input type="text" id="newCatInput" placeholder="输入新分类名称" autocomplete="off" maxlength="20" style="flex:1;">
+<button class="btn btn-primary btn-sm" id="addCatBtn" style="flex-shrink:0;">+ 添加</button>
+</div>
+<div class="modal-actions" style="margin-top:10px;">
+<button class="btn btn-secondary" id="catModalDone">完成</button>
+</div>
+</div>
+</div>
+
+<!-- 书童搜索页面 -->
+<div class="search-page" id="searchPage">
+<div style="text-align:center;padding:10px 0 16px;">
+<span style="font-size:2.5rem;">🔍</span>
+<h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-top:4px;">书童搜索</h2>
+<p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">搜索所有名词卡片与收藏句子</p>
+</div>
+<div class="search-page-input-wrap">
+<input type="text" class="search-input" id="searchPageInput" placeholder="输入关键词搜索…" autocomplete="off" style="padding-left:14px;">
+<button class="search-clear" id="searchPageClear" title="清除搜索">✕</button>
+</div>
+<div class="search-page-results" id="searchPageResults"></div>
+</div>
+
+<!-- 全屏文本编辑器 -->
+<div class="fullscreen-editor" id="fullscreenEditor">
+<div class="fullscreen-editor-header">
+<span class="editor-title" id="editorTitle">编辑</span>
+<button class="editor-done-btn" id="editorDoneBtn">完成</button>
+</div>
+<textarea id="editorTextarea"></textarea>
+</div>
+
+<!-- 分类底部弹窗选择器 -->
+<div class="cat-picker-overlay" id="catPickerOverlay"></div>
+<div class="cat-picker-sheet" id="catPickerSheet">
+<div class="cat-picker-handle"></div>
+<div class="cat-picker-title">选择分类</div>
+<div class="cat-picker-list" id="catPickerList"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+// DOM引用
+const $ = (sel) => document.querySelector(sel);
+// searchInput/searchClear removed (search moved to 书童搜索 page)
+const cardCountEl = $('#cardCount');
+const storageBadge = $('#storageBadge');
+const storageAlert = $('#storageAlert');
+const typeTabs = $('#typeTabs');
+const categoryTriggerBtn = $('#categoryTriggerBtn');
+const categoryTriggerLabel = $('#categoryTriggerLabel');
+const categoryManageBtn = $('#categoryManageBtn');
+const catPickerOverlay = $('#catPickerOverlay');
+const catPickerSheet = $('#catPickerSheet');
+const catPickerList = $('#catPickerList');
+
+const addTypeOverlay = $('#addTypeOverlay');
+const addTypePopup = $('#addTypePopup');
+const addTypeCard = $('#addTypeCard');
+const addTypeQuote = $('#addTypeQuote');
+const contentGrid = $('#contentGrid');
+const toast = $('#toast');
+const importFileInput = $('#importFileInput');
+const backupReminder = $('#backupReminder');
+const reminderReason = $('#reminderReason');
+const reminderExportBtn = $('#reminderExportBtn');
+const reminderClose = $('#reminderClose');
+const mainContent = $('#mainContent');
+const backupPage = $('#backupPage');
+const settingsPage = $('#settingsPage');
+const searchPage = $('#searchPage');
+const bottomNav = $('#bottomNav');
+const bottomNavAdd = $('#bottomNavAdd');
+const backupPageExportBtn = $('#backupPageExportBtn');
+const backupPageImportBtn = $('#backupPageImportBtn');
+const backupStorageInfo = $('#backupStorageInfo');
+
+const detailPage = $('#detailPage');
+const detailPageName = $('#detailPageName');
+const detailPageMeta = $('#detailPageMeta');
+const detailPageBody = $('#detailPageBody');
+const detailPageClose = $('#detailPageClose');
+const detailPageEditBtn = $('#detailPageEditBtn');
+const detailPageDeleteBtn = $('#detailPageDeleteBtn');
+
+const searchPageInput = $('#searchPageInput');
+const searchPageClear = $('#searchPageClear');
+const searchPageResults = $('#searchPageResults');
+
+const multiSelectBar = $('#multiSelectBar');
+const multiSelectCount = $('#multiSelectCount');
+const multiSelectCancel = $('#multiSelectCancel');
+const multiSelectDelete = $('#multiSelectDelete');
+
+const fullscreenEditor = $('#fullscreenEditor');
+const editorTitle = $('#editorTitle');
+const editorTextarea = $('#editorTextarea');
+const editorDoneBtn = $('#editorDoneBtn');
+
+const formModalOverlay = $('#formModalOverlay');
+const formModalTitle = $('#formModalTitle');
+const formCategory = $('#formCategory');
+const formName = $('#formName');
+const formSource = $('#formSource');
+const formDesc = $('#formDesc');
+const formQuoteContent = $('#formQuoteContent');
+const formQuoteSource = $('#formQuoteSource');
+const formNote = $('#formNote');
+const formSave = $('#formSave');
+const formCancel = $('#formCancel');
+const formModalClose = $('#formModalClose');
+
+const quotaModalOverlay = $('#quotaModalOverlay');
+const quotaExportBtn = $('#quotaExportBtn');
+const quotaCloseBtn = $('#quotaCloseBtn');
+
+const catModalOverlay = $('#catModalOverlay');
+const catList = $('#catList');
+const newCatInput = $('#newCatInput');
+const addCatBtn = $('#addCatBtn');
+const catModalClose = $('#catModalClose');
+const catModalDone = $('#catModalDone');
+
+const setCountThreshold = $('#setCountThreshold');
+const setDayThreshold = $('#setDayThreshold');
+const setReminderEnabled = $('#setReminderEnabled');
+const settingsSaveBtn = $('#settingsSaveBtn');
+const settingsResetBtn = $('#settingsResetBtn');
+const installPwaBtn = $('#installPwaBtn');
+const installGuideContainer = $('#installGuideContainer');
+
+// 状态
+const STORAGE_KEY = 'knowledge-cards-v3';
+const SETTINGS_KEY = 'knowledge-cards-settings';
+const LAST_EXPORT_KEY = 'knowledge-cards-last-export';
+const SESSION_ADDED_KEY = 'knowledge-cards-session-added';
+const DEFAULT_CATEGORIES = ['经济学', '人文社科', '心理学', '哲学', '科技', '其他'];
+const PRESET_CARDS = [
+{ id: 'p1', type: 'card', category: '心理学', name: '破窗效应',
+description: '犯罪心理学理论。如果一扇窗户被打破而没有及时修复，很快其他窗户也会被打破。环境中的不良现象如果被放任存在，会诱使人们仿效，甚至变本加厉。该理论常用于社区治理和企业管理，说明了微小的失序如何逐步升级为严重的犯罪问题。',
+source: '《社会心理学》', createdAt: Date.now() - 900000 },
+{ id: 'p2', type: 'card', category: '经济学', name: '二八定律',
+description: '又称帕累托法则。认为80%的结果往往来自20%的原因。例如：80%的财富掌握在20%的人手中；80%的销售额来自20%的客户。核心思想是抓住关键少数，在时间管理、商业决策中广泛应用。',
+source: '帕累托', createdAt: Date.now() - 800000 },
+{ id: 'p3', type: 'card', category: '心理学', name: '马斯洛需求层次理论',
+description: '将人类需求从低到高分为五个层次：生理需求、安全需求、社交需求（归属与爱）、尊重需求和自我实现需求。只有当较低层次的需求得到满足后，人们才会追求更高层次的需求。该理论深刻影响了管理学和教育学。',
+source: '马斯洛', createdAt: Date.now() - 700000 },
+{ id: 'p4', type: 'card', category: '哲学', name: '奥卡姆剃刀',
+description: '哲学和科学中的重要原则。核心思想："如无必要，勿增实体。"在面对多个解释时，最简单的那个往往是最好的。提倡简洁和精炼，避免不必要的假设和复杂性，是现代科学方法论的重要基石。',
+source: '奥卡姆的威廉', createdAt: Date.now() - 600000 },
+{ id: 'p5', type: 'card', category: '人文社科', name: '蝴蝶效应',
+description: '混沌理论中的核心概念。指在一个动态系统中，初始条件的微小变化可能引发巨大的连锁反应。经典比喻：一只蝴蝶在巴西扇动翅膀，可能在美国德克萨斯州引起一场龙卷风。提醒我们关注系统的敏感依赖性。',
+source: '《混沌理论》', createdAt: Date.now() - 500000 },
+];
+const PRESET_QUOTES = [
+{ id: 'q1', type: 'quote', category: '哲学', content: '我思故我在。', source: '笛卡尔', note: '经典的存在论命题，强调了思考作为自我存在的证明。',
+createdAt: Date.now() - 400000 },
+{ id: 'q2', type: 'quote', category: '人文社科', content: '人是生而自由的，却无往不在枷锁之中。', source: '卢梭《社会契约论》', note: '',
+createdAt: Date.now() - 300000 },
+{ id: 'q3', type: 'quote', category: '经济学', content: '看不见的手引导着每个人在追求自身利益的同时，促进了社会的整体福祉。', source: '亚当·斯密《国富论》',
+note: '市场机制的核心隐喻。', createdAt: Date.now() - 200000 },
+{ id: 'q4', type: 'quote', category: '哲学', content: '存在先于本质。', source: '萨特', note: '存在主义的核心主张，强调人的自由与责任。',
+createdAt: Date.now() - 100000 },
+];
+
+let appData = { categories: [...DEFAULT_CATEGORIES], items: [] };
+let appSettings = { countThreshold: 20, dayThreshold: 7, reminderEnabled: true };
+let currentType = 'card';
+let currentCategory = '全部';
+let currentPage = 'main';
+let editingId = null;
+let editingType = 'card';
+let detailItemId = null;
+let sessionAddedCount = 0;
+let reminderTimer = null;
+let quotaRejected = false;
+let estimatedLimit = null;
+
+// PWA 安装相关
+let deferredPrompt = null;
+let isPwaInstalled = false;
+
+// 安装指引
+function updateInstallGuide() {
+if (!installGuideContainer) return;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator
+.standalone === true;
+if (isStandalone) {
+installGuideContainer.innerHTML =
+'<div class="install-guide"><p>✅ 应用已安装到主屏幕，享受原生体验！</p></div>';
+if (installPwaBtn) installPwaBtn.style.display = 'none';
+isPwaInstalled = true;
+return;
+}
+if (!window.isSecureContext || !deferredPrompt) {
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+let guideHtml = '<div class="install-guide"><p>⚠️ 当前环境无法自动弹窗安装，但您可以手动添加：</p><ol>';
+if (isIOS) {
+guideHtml += '<li>点击Safari底部菜单栏的「分享」按钮</li><li>向下滑动并选择「添加到主屏幕」</li><li>点击右上角「添加」完成安装</li>';
+} else {
+guideHtml +=
+'<li>点击浏览器右上角「菜单」（三个点）</li><li>在菜单中选择「添加到主屏幕」或「安装应用」</li><li>按提示确认完成安装</li>';
+}
+guideHtml +=
+'</ol><div class="guide-note">💡 提示：使用HTTPS或本地服务器访问可获得自动安装体验。</div></div>';
+installGuideContainer.innerHTML = guideHtml;
+if (installPwaBtn) {
+installPwaBtn.textContent = '📋 查看手动安装步骤';
+installPwaBtn.onclick = () => { showToast('请按照上方指引手动添加至主屏幕'); };
+}
+} else {
+installGuideContainer.innerHTML =
+'<div class="install-guide"><p>✨ 支持一键安装，点击下方按钮将应用添加到主屏幕，获得类似原生App的体验。</p></div>';
+if (installPwaBtn) {
+installPwaBtn.textContent = '📲 立即安装';
+installPwaBtn.onclick = () => {
+if (deferredPrompt) {
+deferredPrompt.prompt();
+deferredPrompt.userChoice.then(choiceResult => {
+if (choiceResult.outcome === 'accepted') { showToast(
+'感谢安装应用！'); } else { showToast('已取消安装'); }
+deferredPrompt = null;
+});
+} else { showToast('暂无法触发自动安装，请使用手动方式'); }
+};
+}
+}
+}
+
+function initPwa() {
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+updateInstallGuide();
+});
+window.addEventListener('appinstalled', () => {
+deferredPrompt = null;
+isPwaInstalled = true;
+updateInstallGuide();
+showToast('应用已成功安装到主屏幕！');
+});
+window.matchMedia('(display-mode: standalone)').addEventListener('change', (evt) => {
+if (evt.matches) { isPwaInstalled = true;
+updateInstallGuide(); }
+});
+updateInstallGuide();
+}
+
+function setupPwaManifest() {
+function generateIcon(size) {
+const canvas = document.createElement('canvas');
+canvas.width = size;
+canvas.height = size;
+const ctx = canvas.getContext('2d');
+const radius = size * 0.2;
+ctx.beginPath();
+ctx.moveTo(radius, 0);
+ctx.lineTo(size - radius, 0);
+ctx.arcTo(size, 0, size, radius, radius);
+ctx.lineTo(size, size - radius);
+ctx.arcTo(size, size, size - radius, size, radius);
+ctx.lineTo(radius, size);
+ctx.arcTo(0, size, 0, size - radius, radius);
+ctx.lineTo(0, radius);
+ctx.arcTo(0, 0, radius, 0, radius);
+ctx.closePath();
+const gradient = ctx.createLinearGradient(0, 0, size, size);
+gradient.addColorStop(0, '#d4a574');
+gradient.addColorStop(1, '#b8753e');
+ctx.fillStyle = gradient;
+ctx.fill();
+const bookW = size * 0.6;
+const bookH = size * 0.5;
+const bookX = (size - bookW) / 2;
+const bookY = (size - bookH) / 2;
+ctx.fillStyle = '#fffefb';
+ctx.fillRect(bookX, bookY, bookW, bookH);
+ctx.fillStyle = '#b8753e30';
+ctx.fillRect(bookX, bookY, bookW * 0.12, bookH);
+ctx.beginPath();
+ctx.strokeStyle = '#b8753e';
+ctx.lineWidth = size * 0.025;
+ctx.lineCap = 'round';
+for (let i = 1; i <= 3; i++) {
+const y = bookY + bookH * (0.25 + i * 0.2);
+ctx.beginPath();
+ctx.moveTo(bookX + bookW * 0.2, y);
+ctx.lineTo(bookX + bookW * 0.8, y);
+ctx.stroke();
+}
+const cornerSize = size * 0.16;
+ctx.fillStyle = '#fff';
+ctx.fillRect(bookX + bookW - cornerSize, bookY, cornerSize, cornerSize);
+ctx.fillStyle = '#b8753e';
+ctx.beginPath();
+ctx.moveTo(bookX + bookW - cornerSize, bookY);
+ctx.lineTo(bookX + bookW, bookY);
+ctx.lineTo(bookX + bookW, bookY + cornerSize);
+ctx.fill();
+const penX = bookX + bookW * 0.85;
+const penY = bookY - size * 0.08;
+ctx.beginPath();
+ctx.moveTo(penX, penY);
+ctx.lineTo(penX + size * 0.12, penY + size * 0.08);
+ctx.lineTo(penX + size * 0.05, penY + size * 0.12);
+ctx.fillStyle = '#f4e2d2';
+ctx.fill();
+ctx.beginPath();
+ctx.moveTo(penX + size * 0.05, penY + size * 0.04);
+ctx.lineTo(penX + size * 0.12, penY + size * 0.12);
+ctx.lineTo(penX, penY + size * 0.08);
+ctx.fill();
+ctx.fillStyle = '#b8753e';
+ctx.beginPath();
+ctx.arc(penX + size * 0.05, penY + size * 0.05, size * 0.02, 0, 2 * Math.PI);
+ctx.fill();
+return canvas.toDataURL('image/png');
+}
+const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const icons = iconSizes.map(sz => ({
+src: generateIcon(sz),
+sizes: `${sz}x${sz}`,
+type: 'image/png',
+purpose: 'any maskable'
+}));
+const manifestObj = {
+name: '小张书房 · 知识手札',
+short_name: '小张书房',
+description: '小张的知识手札，卡片式管理与句子收藏',
+start_url: window.location.origin + window.location.pathname,
+scope: new URL('.', window.location.href).href,
+display: 'standalone',
+theme_color: '#b8753e',
+background_color: '#f7f4ef',
+icons: icons
+};
+const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/json' });
+const manifestURL = URL.createObjectURL(manifestBlob);
+const manifestLink = document.createElement('link');
+manifestLink.rel = 'manifest';
+manifestLink.href = manifestURL;
+const oldManifest = document.querySelector('link[rel="manifest"]');
+if (oldManifest) oldManifest.remove();
+document.head.appendChild(manifestLink);
+}
+
+function loadData() {
+const stored = localStorage.getItem(STORAGE_KEY);
+if (stored) {
+try {
+const parsed = JSON.parse(stored);
+if (parsed && Array.isArray(parsed.categories) && Array.isArray(parsed.items)) {
+appData.categories = parsed.categories.length > 0 ? parsed.categories : [...DEFAULT_CATEGORIES];
+appData.items = parsed.items;
+return;
+}
+} catch (e) {}
+}
+appData.categories = [...DEFAULT_CATEGORIES];
+appData.items = [...PRESET_CARDS, ...PRESET_QUOTES];
+saveData();
+}
+
+function saveData() {
+try {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+updateStorageBadge();
+updateBackupPageStorageInfo();
+scheduleGistSync();
+return true;
+} catch (e) {
+if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+handleQuotaExceeded();
+return false;
+}
+return false;
+}
+}
+
+function loadSettings() {
+const stored = localStorage.getItem(SETTINGS_KEY);
+if (stored) {
+try {
+const parsed = JSON.parse(stored);
+if (parsed) {
+appSettings.countThreshold = parsed.countThreshold || 20;
+appSettings.dayThreshold = parsed.dayThreshold || 7;
+appSettings.reminderEnabled = parsed.reminderEnabled !== false;
+}
+} catch (e) {}
+}
+setCountThreshold.value = appSettings.countThreshold;
+setDayThreshold.value = appSettings.dayThreshold;
+setReminderEnabled.checked = appSettings.reminderEnabled;
+}
+
+function saveSettings() {
+appSettings.countThreshold = parseInt(setCountThreshold.value) || 20;
+appSettings.dayThreshold = parseInt(setDayThreshold.value) || 7;
+appSettings.reminderEnabled = setReminderEnabled.checked;
+localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings));
+}
+
+function getLastExportTime() {
+const stored = localStorage.getItem(LAST_EXPORT_KEY);
+return stored ? parseInt(stored) : 0;
+}
+
+function setLastExportTime() {
+localStorage.setItem(LAST_EXPORT_KEY, Date.now().toString());
+}
+
+function generateId() {
+return 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+}
+
+function getStorageUsage() {
+let totalBytes = 0;
+for (let key in localStorage) {
+if (localStorage.hasOwnProperty(key)) {
+totalBytes += localStorage[key].length * 2;
+}
+}
+return totalBytes;
+}
+
+function getEstimatedLimit() {
+if (estimatedLimit === null) {
+// 优先使用 Storage Manager API（现代浏览器均支持）
+if (navigator.storage && navigator.storage.estimate) {
+navigator.storage.estimate().then((est) => {
+if (est.quota && est.quota > 0) {
+estimatedLimit = est.quota;
+} else {
+estimatedLimit = 50 * 1024 * 1024; // 降级默认 50MB
+}
+updateStorageBadge();
+updateBackupPageStorageInfo();
+}).catch(() => {
+estimatedLimit = 50 * 1024 * 1024;
+});
+// 先返回一个临时值，异步更新后会刷新 UI
+estimatedLimit = 50 * 1024 * 1024;
+} else {
+estimatedLimit = 50 * 1024 * 1024; // 降级默认 50MB
+}
+}
+return estimatedLimit;
+}
+
+function updateStorageBadge() {
+const used = getStorageUsage();
+const limit = getEstimatedLimit();
+const ratio = used / limit;
+const usedStr = formatBytes(used);
+const limitStr = formatBytes(limit);
+storageBadge.textContent = `已用 ${usedStr} / ~${limitStr}`;
+storageBadge.className = 'storage-badge';
+if (ratio > 0.95) storageBadge.classList.add('danger');
+else if (ratio > 0.8) storageBadge.classList.add('warning');
+else storageBadge.classList.add('safe');
+updateStorageAlert(ratio);
+}
+
+function updateBackupPageStorageInfo() {
+if (!backupStorageInfo) return;
+const used = getStorageUsage();
+const limit = getEstimatedLimit();
+const ratio = used / limit;
+backupStorageInfo.textContent = `已用 ${formatBytes(used)} / 约 ${formatBytes(limit)}（${Math.round(ratio*100)}%）`;
+}
+
+function updateStorageAlert(ratio) {
+if (ratio > 0.95) {
+storageAlert.className = 'storage-alert danger';
+storageAlert.querySelector('.alert-icon').textContent = '🔴';
+storageAlert.querySelector('.alert-text').innerHTML =
+'存储空间即将耗尽！请<span class="alert-link" id="alertExportLink">立即导出备份</span>，以防数据丢失';
+storageAlert.style.display = 'flex';
+} else if (ratio > 0.8) {
+storageAlert.className = 'storage-alert warning';
+storageAlert.querySelector('.alert-icon').textContent = '🟡';
+storageAlert.querySelector('.alert-text').innerHTML =
+'存储空间使用已超过80%，建议<span class="alert-link" id="alertExportLink">导出备份</span>';
+storageAlert.style.display = 'flex';
+} else {
+storageAlert.style.display = 'none';
+}
+const alertLink = storageAlert.querySelector('#alertExportLink');
+if (alertLink) alertLink.addEventListener('click', exportData);
+}
+
+function formatBytes(bytes) {
+if (bytes < 1024) return bytes + ' B';
+if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function handleQuotaExceeded() {
+if (!quotaRejected) quotaModalOverlay.classList.add('active');
+}
+
+function exportData() {
+const dataStr = JSON.stringify(appData, null, 2);
+const blob = new Blob([dataStr], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+const date = new Date();
+const dateStr =
+`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+a.href = url;
+a.download = `小张书房备份_${dateStr}.json`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+setLastExportTime();
+sessionAddedCount = 0;
+sessionStorage.setItem(SESSION_ADDED_KEY, '0');
+hideBackupReminder();
+updateStorageBadge();
+updateBackupPageStorageInfo();
+showToast('备份文件已下载 ✓');
+}
+
+function importData(file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const json = JSON.parse(e.target.result);
+if (!json || !Array.isArray(json.categories) || !Array.isArray(json.items)) throw new Error(
+'格式无效');
+if (!confirm('导入数据将覆盖当前所有内容，包括分类和卡片。\n\n确定要继续吗？')) return;
+appData.categories = json.categories.length > 0 ? json.categories : [...DEFAULT_CATEGORIES];
+appData.items = json.items;
+if (saveData()) {
+currentCategory = '全部';
+renderAll();
+setLastExportTime();
+sessionAddedCount = 0;
+sessionStorage.setItem(SESSION_ADDED_KEY, '0');
+hideBackupReminder();
+showToast('数据恢复成功 ✓');
+}
+} catch (err) {
+alert('文件格式不正确，无法导入。请选择由本工具导出的 .json 备份文件。');
+}
+};
+reader.readAsText(file);
+}
+
+function showBackupReminder(reason) {
+if (!appSettings.reminderEnabled) return;
+reminderReason.textContent = reason;
+backupReminder.classList.add('show');
+if (reminderTimer) clearTimeout(reminderTimer);
+reminderTimer = setTimeout(hideBackupReminder, 30000);
+}
+
+function hideBackupReminder() {
+backupReminder.classList.remove('show');
+if (reminderTimer) clearTimeout(reminderTimer);
+}
+
+function checkBackupReminders() {
+if (!appSettings.reminderEnabled) return;
+const totalItems = appData.items.length;
+const lastExport = getLastExportTime();
+const daysSinceExport = lastExport ? (Date.now() - lastExport) / (1000 * 60 * 60 * 24) : Infinity;
+const ratio = getStorageUsage() / getEstimatedLimit();
+if (ratio > 0.8) {
+showBackupReminder(`存储空间已使用 ${Math.round(ratio*100)}%，建议立即备份`);
+return;
+}
+if (daysSinceExport >= appSettings.dayThreshold && totalItems > 0) {
+showBackupReminder(`已经 ${Math.floor(daysSinceExport)} 天没有备份了`);
+return;
+}
+if (sessionAddedCount >= appSettings.countThreshold) {
+showBackupReminder(`本会话已新增 ${sessionAddedCount} 条内容，建议备份`);
+return;
+}
+}
+
+function getFilteredItems() {
+let items = appData.items.filter(item =>
+item.type === currentType);
+if (currentCategory !== '全部') items = items.filter(item =>
+item.category === currentCategory);
+return items;
+}
+
+function renderCategoryBar() {
+categoryTriggerLabel.textContent = currentCategory;
+}
+
+function openCatPicker() {
+const allCategories = ['全部', ...appData.categories];
+catPickerList.innerHTML = allCategories.map(cat =>
+`<div class="cat-picker-item${cat === currentCategory ? ' active' : ''}" data-category="${escapeAttr(cat)}">${escapeHTML(cat)}</div>`
+).join('');
+catPickerOverlay.classList.add('active');
+catPickerSheet.classList.add('active');
+// Scroll active into view
+setTimeout(() => {
+const activeItem = catPickerList.querySelector('.cat-picker-item.active');
+if (activeItem) activeItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}, 200);
+}
+
+function closeCatPicker() {
+catPickerOverlay.classList.remove('active');
+catPickerSheet.classList.remove('active');
+}
+
+categoryTriggerBtn.addEventListener('click', openCatPicker);
+catPickerOverlay.addEventListener('click', closeCatPicker);
+catPickerList.addEventListener('click', function(e) {
+const item = e.target.closest('.cat-picker-item');
+if (!item) return;
+currentCategory = item.getAttribute('data-category');
+closeCatPicker();
+renderAll();
+});
+categoryManageBtn.addEventListener('click', openCatManager);
+
+function renderContent() {
+const filteredItems = getFilteredItems();
+const totalCount = appData.items.filter(i => i.type === currentType).length;
+cardCountEl.textContent = `共 ${totalCount} 条`;
+contentGrid.innerHTML = '';
+if (filteredItems.length === 0) {
+const emptyState = document.createElement('div');
+emptyState.className = 'empty-state';
+if (totalCount === 0) {
+emptyState.innerHTML =
+`<div class="empty-icon">${currentType === 'card' ? '📝' : '💬'}</div><div class="empty-title">还没有${currentType === 'card' ? '名词卡片' : '收藏句子'}</div><div class="empty-desc">点击 + 按钮添加第一条吧</div>`;
+} else if (query) {
+emptyState.innerHTML =
+`<div class="empty-icon">🔍</div><div class="empty-title">没有找到匹配的内容</div><div class="empty-desc">试试其他关键词？当前搜索："${escapeHTML(query)}"</div>`;
+} else {
+emptyState.innerHTML =
+`<div class="empty-icon">📂</div><div class="empty-title">该分类下暂无内容</div><div class="empty-desc">切换到其他分类或添加新内容</div>`;
+}
+contentGrid.appendChild(emptyState);
+return;
+}
+filteredItems.forEach((item, index) => {
+if (item.type === 'card') contentGrid.appendChild(createCardElement(item, index));
+else contentGrid.appendChild(createQuoteElement(item, index));
+});
+}
+
+function createCardElement(card, index) {
+const cardDiv = document.createElement('div');
+cardDiv.className = 'card';
+cardDiv.setAttribute('data-id', card.id);
+cardDiv.style.animationDelay = `${index * 0.03}s`;
+const descTruncated = card.description && card.description.length > 120;
+cardDiv.innerHTML = `
+<div class="card-inner">
+<div class="card-face card-front">
+<span class="card-category-tag">${escapeHTML(card.category)}</span>
+<span class="card-name">${escapeHTML(card.name)}</span>
+${card.source ? `<span class="card-source">📖 ${escapeHTML(card.source)}</span>` : ''}
+<span class="flip-hint">点击翻转查看释义</span>
+</div>
+<div class="card-face card-back">
+<div class="card-description">${escapeHTML(card.description || '暂无释义')}</div>
+<span class="detail-link${descTruncated ? '' : ' hidden'}" data-action="detail" data-id="${card.id}">查看全文</span>
+</div>
+</div>`;
+cardDiv.addEventListener('click', function(e) {
+if (e.target.closest('.detail-link')) return;
+if (multiSelectMode) {
+toggleMultiSelect(card.id, cardDiv);
+return;
+}
+this.classList.toggle('flipped');
+});
+cardDiv.querySelector('.detail-link')?.addEventListener('click', function(e) {
+e.stopPropagation();
+openDetailPage(this.getAttribute('data-id'));
+});
+// 长按进入多选模式
+let longPressTimer = null;
+cardDiv.addEventListener('touchstart', function(e) {
+longPressTimer = setTimeout(() => {
+enterMultiSelectMode();
+toggleMultiSelect(card.id, cardDiv);
+}, 500);
+}, { passive: true });
+cardDiv.addEventListener('touchend', function() { clearTimeout(longPressTimer); });
+cardDiv.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
+return cardDiv;
+}
+
+function createQuoteElement(quote, index) {
+const div = document.createElement('div');
+div.className = 'quote-card';
+div.setAttribute('data-id', quote.id);
+div.style.animationDelay = `${index * 0.03}s`;
+const displayContent = quote.content && quote.content.length > 200 ? quote.content.substring(0, 200) +
+'…' : (quote.content || '');
+div.innerHTML = `
+<span class="quote-category-tag">${escapeHTML(quote.category)}</span>
+<div class="quote-content">${escapeHTML(displayContent)}</div>
+<div class="quote-source">${escapeHTML(quote.source || '未知来源')}</div>
+`;
+div.addEventListener('click', function(e) {
+if (multiSelectMode) {
+toggleMultiSelect(quote.id, div);
+return;
+}
+openDetailPage(quote.id);
+});
+// 长按进入多选模式
+let longPressTimer = null;
+div.addEventListener('touchstart', function(e) {
+longPressTimer = setTimeout(() => {
+enterMultiSelectMode();
+toggleMultiSelect(quote.id, div);
+}, 500);
+}, { passive: true });
+div.addEventListener('touchend', function() { clearTimeout(longPressTimer); });
+div.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
+return div;
+}
+
+function renderAll() {
+renderCategoryBar();
+renderContent();
+updateStorageBadge();
+updateBackupPageStorageInfo();
+}
+
+
+
+function navigateTo(page) {
+currentPage = page;
+// 更新底部导航激活状态
+bottomNav.querySelectorAll('.nav-item[data-page]').forEach(item => {
+item.classList.toggle('active', item.getAttribute('data-page') === page);
+});
+// 切换页面显示
+mainContent.style.display = 'none';
+backupPage.classList.remove('visible');
+settingsPage.classList.remove('visible');
+searchPage.classList.remove('visible');
+if (page === 'main') {
+mainContent.style.display = '';
+renderAll();
+} else if (page === 'search') {
+searchPage.classList.add('visible');
+setTimeout(() => searchPageInput.focus(), 200);
+} else if (page === 'backup') {
+backupPage.classList.add('visible');
+updateBackupPageStorageInfo();
+hideBackupReminder();
+} else if (page === 'settings') {
+settingsPage.classList.add('visible');
+setCountThreshold.value = appSettings.countThreshold;
+setDayThreshold.value = appSettings.dayThreshold;
+setReminderEnabled.checked = appSettings.reminderEnabled;
+updateInstallGuide();
+hideBackupReminder();
+}
+}
+
+function updateTypeTabUI() {
+typeTabs.querySelectorAll('.type-tab').forEach(tab => {
+tab.classList.toggle('active', tab.getAttribute('data-type') === currentType);
+});
+}
+
+function openDetailPage(itemId) {
+detailItemId = itemId;
+const item = appData.items.find(i => i.id === itemId);
+if (!item) return;
+if (item.type === 'card') {
+detailPageName.textContent = item.name || '未命名';
+detailPageMeta.innerHTML = `
+<span>📂 ${escapeHTML(item.category)}</span>
+${item.source ? `<span>📖 ${escapeHTML(item.source)}</span>` : ''}
+`;
+detailPageBody.innerHTML = `<div class="detail-body">${escapeHTML(item.description || '暂无释义')}</div>`;
+} else {
+const snippet = (item.content || '').length > 20 ? (item.content || '').substring(0, 20) + '…' : (item.content || '未命名');
+detailPageName.textContent = snippet;
+detailPageMeta.innerHTML = `
+<span>📂 ${escapeHTML(item.category)}</span>
+${item.source ? `<span>✍ ${escapeHTML(item.source)}</span>` : ''}
+`;
+let bodyHtml = `<div class="detail-body quote-style">${escapeHTML(item.content || '')}</div>`;
+if (item.note) {
+bodyHtml += `<div class="detail-note"><div class="detail-note-label">📝 笔记</div>${escapeHTML(item.note)}</div>`;
+}
+detailPageBody.innerHTML = bodyHtml;
+}
+detailPage.classList.add('active');
+detailPageBody.scrollTop = 0;
+}
+
+function closeDetailPage() {
+detailPage.classList.remove('active');
+detailItemId = null;
+}
+
+function openFormModal(type, itemId = null) {
+editingId = itemId;
+editingType = type;
+formCategory.innerHTML = appData.categories.map(c =>
+`<option value="${escapeAttr(c)}">${escapeHTML(c)}</option>`).join('');
+formName.value = '';
+formSource.value = '';
+formDesc.value = '';
+formQuoteContent.value = '';
+formQuoteSource.value = '';
+formNote.value = '';
+const isCard = type === 'card';
+formName.closest('.form-group').style.display = isCard ? '' : 'none';
+formSource.closest('.form-group').style.display = isCard ? '' : 'none';
+formDesc.closest('.form-group').style.display = isCard ? '' : 'none';
+formQuoteContent.closest('.form-group').style.display = isCard ? 'none' : '';
+formQuoteSource.closest('.form-group').style.display = isCard ? 'none' : '';
+formNote.closest('.form-group').style.display = isCard ? 'none' : '';
+formCategory.closest('.form-group').style.display = '';
+formModalTitle.textContent = isCard ? (itemId ? '编辑名词卡片' : '添加名词卡片') : (itemId ? '编辑句子' :
+'添加句子');
+if (itemId) {
+const item = appData.items.find(i => i.id === itemId);
+if (item) {
+formCategory.value = item.category || appData.categories[0];
+if (isCard) {
+formName.value = item.name || '';
+formSource.value = item.source || '';
+formDesc.value = item.description || '';
+} else {
+formQuoteContent.value = item.content || '';
+formQuoteSource.value = item.source || '';
+formNote.value = item.note || '';
+}
+}
+} else {
+if (appData.categories.length > 0) formCategory.value = appData.categories[0];
+}
+formModalOverlay.classList.add('active');
+setTimeout(() => { if (isCard) formName.focus();
+else formQuoteContent.focus(); }, 150);
+}
+
+function closeFormModal() {
+formModalOverlay.classList.remove('active');
+editingId = null;
+}
+
+function handleFormSave() {
+const type = editingType;
+const category = formCategory.value || (appData.categories[0] || '其他');
+if (type === 'card') {
+const name = formName.value.trim();
+const description = formDesc.value.trim();
+const source = formSource.value.trim();
+if (!name) { showToast('请输入名称');
+formName.focus(); return; }
+if (!description) { showToast('请输入释义');
+formDesc.focus(); return; }
+if (editingId) {
+const item = appData.items.find(i => i.id === editingId);
+if (item) { item.category = category;
+item.name = name;
+item.description = description;
+item.source = source; }
+} else {
+appData.items.unshift({ id: generateId(), type: 'card', category, name, description, source,
+createdAt: Date.now() });
+onNewItemAdded();
+}
+} else {
+const content = formQuoteContent.value.trim();
+const quoteSource = formQuoteSource.value.trim();
+const note = formNote.value.trim();
+if (!content) { showToast('请输入句子内容');
+formQuoteContent.focus(); return; }
+if (!quoteSource) { showToast('请输入来源');
+formQuoteSource.focus(); return; }
+if (editingId) {
+const item = appData.items.find(i => i.id === editingId);
+if (item) { item.category = category;
+item.content = content;
+item.source = quoteSource;
+item.note = note; }
+} else {
+appData.items.unshift({ id: generateId(), type: 'quote', category, content, source: quoteSource,
+note, createdAt: Date.now() });
+onNewItemAdded();
+}
+}
+const saved = saveData();
+if (!saved) { showToast('保存失败：存储空间不足，请导出备份后重试'); return; }
+closeFormModal();
+if (currentType !== type) { currentType = type;
+updateTypeTabUI(); }
+renderAll();
+window.scrollTo({ top: 0, behavior: 'smooth' });
+showToast('保存成功 ✓');
+checkBackupReminders();
+}
+
+function onNewItemAdded() {
+sessionAddedCount++;
+sessionStorage.setItem(SESSION_ADDED_KEY, sessionAddedCount.toString());
+}
+
+// ========== 多选模式 ==========
+let multiSelectMode = false;
+let selectedIds = new Set();
+
+function enterMultiSelectMode() {
+if (multiSelectMode) return;
+multiSelectMode = true;
+selectedIds.clear();
+multiSelectBar.classList.add('active');
+updateMultiSelectUI();
+}
+
+function exitMultiSelectMode() {
+multiSelectMode = false;
+selectedIds.clear();
+multiSelectBar.classList.remove('active');
+document.querySelectorAll('.multi-selected').forEach(el => el.classList.remove('multi-selected'));
+updateMultiSelectUI();
+}
+
+function toggleMultiSelect(id, element) {
+if (selectedIds.has(id)) {
+selectedIds.delete(id);
+element.classList.remove('multi-selected');
+} else {
+selectedIds.add(id);
+element.classList.add('multi-selected');
+}
+updateMultiSelectUI();
+}
+
+function updateMultiSelectUI() {
+const count = selectedIds.size;
+multiSelectCount.textContent = `已选 ${count} 项`;
+multiSelectDelete.disabled = count === 0;
+}
+
+multiSelectCancel.addEventListener('click', exitMultiSelectMode);
+multiSelectDelete.addEventListener('click', function() {
+if (selectedIds.size === 0) return;
+const count = selectedIds.size;
+if (confirm(`确定要删除选中的 ${count} 条内容吗？`)) {
+appData.items = appData.items.filter(i => !selectedIds.has(i.id));
+saveData();
+exitMultiSelectMode();
+renderAll();
+showToast(`已删除 ${count} 条内容`);
+}
+});
+
+// ========== 全屏文本编辑器 ==========
+let activeEditorSource = null;
+
+function autoGrowTextarea(el) {
+el.style.height = 'auto';
+const newHeight = Math.min(el.scrollHeight, 160);
+el.style.height = newHeight + 'px';
+}
+
+function openFullscreenEditor(sourceTextarea) {
+activeEditorSource = sourceTextarea;
+editorTitle.textContent = sourceTextarea.getAttribute('data-editor-label') || '编辑';
+editorTextarea.value = sourceTextarea.value;
+fullscreenEditor.classList.add('active');
+setTimeout(() => {
+editorTextarea.focus();
+editorTextarea.scrollTop = 0;
+}, 200);
+}
+
+function closeFullscreenEditor() {
+if (activeEditorSource) {
+activeEditorSource.value = editorTextarea.value;
+autoGrowTextarea(activeEditorSource);
+}
+fullscreenEditor.classList.remove('active');
+activeEditorSource = null;
+}
+
+editorDoneBtn.addEventListener('click', closeFullscreenEditor);
+
+// Setup auto-grow and expand buttons for all textareas
+document.querySelectorAll('.textarea-wrap').forEach(wrap => {
+const textarea = wrap.querySelector('textarea');
+const expandBtn = wrap.querySelector('.textarea-expand-btn');
+if (textarea) {
+textarea.addEventListener('input', () => autoGrowTextarea(textarea));
+// Init height on focus
+textarea.addEventListener('focus', () => autoGrowTextarea(textarea));
+}
+if (expandBtn && textarea) {
+expandBtn.addEventListener('click', (e) => {
+e.preventDefault();
+e.stopPropagation();
+openFullscreenEditor(textarea);
+});
+}
+});
+
+function handleDelete(itemId) {
+const item = appData.items.find(i => i.id === itemId);
+if (!item) return;
+const label = item.type === 'card' ? item.name : (item.content || '').substring(0, 30);
+// 备份被删除的条目，用于撤销
+const deletedItem = JSON.parse(JSON.stringify(item));
+const deletedIndex = appData.items.findIndex(i => i.id === itemId);
+appData.items = appData.items.filter(i => i.id !== itemId);
+saveData();
+renderAll();
+showToast(`已删除「${label}」`, 4000, () => {
+// 撤销回调：恢复被删除的条目
+appData.items.splice(deletedIndex, 0, deletedItem);
+saveData();
+renderAll();
+showToast('已撤销删除');
+});
+}
+
+function openCatManager() { renderCatList();
+newCatInput.value = '';
+catModalOverlay.classList.add('active');
+setTimeout(() => newCatInput.focus(), 150); }
+
+function closeCatManager() { catModalOverlay.classList.remove('active');
+renderAll(); }
+
+function renderCatList() {
+catList.innerHTML = appData.categories.map(cat =>
+`<li>${escapeHTML(cat)}<button class="del-cat-btn" data-cat="${escapeAttr(cat)}" title="删除分类">×</button></li>`
+).join('');
+catList.querySelectorAll('.del-cat-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const cat = this.getAttribute('data-cat');
+const count = appData.items.filter(i => i.category === cat).length;
+if (count > 0) {
+if (!confirm(
+`分类"${cat}"下有 ${count} 条内容。\n删除分类后这些内容将被移至"其他"。\n确定删除吗？`
+)) return;
+appData.items.forEach(i => { if (i.category === cat) i.category = '其他'; });
+if (!appData.categories.includes('其他')) appData.categories.push('其他');
+}
+appData.categories = appData.categories.filter(c => c !== cat);
+if (appData.categories.length === 0) appData.categories = ['其他'];
+if (currentCategory === cat) currentCategory = '全部';
+saveData();
+renderCatList();
+renderAll();
+});
+});
+}
+
+let toastTimer;
+
+function showToast(msg, duration, undoCallback) {
+duration = duration || 1800;
+toast.textContent = msg;
+toast.className = 'toast show';
+// 如果有撤销回调，追加撤销按钮
+if (undoCallback) {
+toast.innerHTML = msg + ' <button class="toast-undo-btn" style="margin-left:8px;padding:2px 10px;border:1px solid rgba(255,255,255,0.6);border-radius:4px;background:transparent;color:inherit;font-size:inherit;cursor:pointer;">撤销</button>';
+toast.querySelector('.toast-undo-btn').addEventListener('click', function(e) {
+e.stopPropagation();
+clearTimeout(toastTimer);
+toast.classList.remove('show');
+undoCallback();
+});
+}
+clearTimeout(toastTimer);
+toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+function escapeHTML(str) {
+const div = document.createElement('div');
+div.textContent = str;
+return div.innerHTML;
+}
+
+function escapeAttr(str) {
+return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function createAppleTouchIcon() {
+const canvas = document.createElement('canvas');
+canvas.width = 180;
+canvas.height = 180;
+const ctx = canvas.getContext('2d');
+const radius = 40;
+ctx.beginPath();
+ctx.moveTo(radius, 0);
+ctx.lineTo(180 - radius, 0);
+ctx.arcTo(180, 0, 180, radius, radius);
+ctx.lineTo(180, 180 - radius);
+ctx.arcTo(180, 180, 180 - radius, 180, radius);
+ctx.lineTo(radius, 180);
+ctx.arcTo(0, 180, 0, 180 - radius, radius);
+ctx.lineTo(0, radius);
+ctx.arcTo(0, 0, radius, 0, radius);
+ctx.closePath();
+const gradient = ctx.createLinearGradient(0, 0, 180, 180);
+gradient.addColorStop(0, '#d4a574');
+gradient.addColorStop(1, '#b8753e');
+ctx.fillStyle = gradient;
+ctx.fill();
+ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+ctx.beginPath();
+ctx.moveTo(60, 85);
+ctx.lineTo(60, 155);
+ctx.quadraticCurveTo(60, 162, 67, 162);
+ctx.lineTo(90, 148);
+ctx.lineTo(113, 162);
+ctx.quadraticCurveTo(120, 162, 120, 155);
+ctx.lineTo(120, 85);
+ctx.quadraticCurveTo(120, 78, 113, 78);
+ctx.lineTo(67, 78);
+ctx.quadraticCurveTo(60, 78, 60, 85);
+ctx.closePath();
+ctx.fill();
+ctx.fillStyle = '#b8753e';
+ctx.globalAlpha = 0.15;
+ctx.beginPath();
+ctx.moveTo(60, 85);
+ctx.lineTo(78, 85);
+ctx.lineTo(78, 67);
+ctx.closePath();
+ctx.fill();
+ctx.globalAlpha = 1;
+const dataUrl = canvas.toDataURL('image/png');
+const link = document.createElement('link');
+link.rel = 'apple-touch-icon';
+link.href = dataUrl;
+document.head.appendChild(link);
+}
+
+// === 事件绑定 ===
+storageBadge.addEventListener('click', exportData);
+backupPageExportBtn.addEventListener('click', exportData);
+backupPageImportBtn.addEventListener('click', () => importFileInput.click());
+importFileInput.addEventListener('change', function(e) {
+const file = e.target.files[0];
+if (file) importData(file);
+importFileInput.value = '';
+});
+quotaExportBtn.addEventListener('click', () => { exportData();
+quotaModalOverlay.classList.remove('active'); });
+quotaCloseBtn.addEventListener('click', () => { quotaModalOverlay.classList.remove('active');
+quotaRejected = true;
+showToast('请注意：空间不足，保存可能失败'); });
+quotaModalOverlay.addEventListener('click', function(e) { if (e.target === quotaModalOverlay) {
+quotaModalOverlay.classList.remove('active');
+quotaRejected = true; } });
+reminderExportBtn.addEventListener('click', () => { exportData();
+hideBackupReminder(); });
+reminderClose.addEventListener('click', hideBackupReminder);
+backupReminder.addEventListener('click', function(e) { if (e.target === backupReminder) hideBackupReminder
+(); });
+detailPageClose.addEventListener('click', closeDetailPage);
+detailPageEditBtn.addEventListener('click', function() {
+if (!detailItemId) return;
+const item = appData.items.find(i => i.id === detailItemId);
+if (!item) return;
+closeDetailPage();
+openFormModal(item.type, detailItemId);
+});
+detailPageDeleteBtn.addEventListener('click', function() {
+if (!detailItemId) return;
+const item = appData.items.find(i => i.id === detailItemId);
+if (!item) return;
+const label = item.type === 'card' ? item.name : (item.content || '').substring(0, 30);
+if (confirm(`确定要删除「${label}」吗？\n\n此操作不可恢复。`)) {
+appData.items = appData.items.filter(i => i.id !== detailItemId);
+saveData();
+closeDetailPage();
+renderAll();
+showToast('已删除');
+}
+});
+formSave.addEventListener('click', handleFormSave);
+formCancel.addEventListener('click', closeFormModal);
+formModalClose.addEventListener('click', closeFormModal);
+formModalOverlay.addEventListener('click', function(e) { if (e.target === formModalOverlay)
+closeFormModal(); });
+formName.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault();
+formDesc.focus(); } });
+formDesc.addEventListener('keydown', function(e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e
+.preventDefault();
+handleFormSave(); } });
+formQuoteContent.addEventListener('keydown', function(e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e
+.preventDefault();
+handleFormSave(); } });
+addCatBtn.addEventListener('click', function() {
+const newCat = newCatInput.value.trim();
+if (!newCat) { showToast('请输入分类名称');
+newCatInput.focus(); return; }
+if (appData.categories.includes(newCat)) { showToast('该分类已存在'); return; }
+appData.categories.push(newCat);
+saveData();
+renderCatList();
+newCatInput.value = '';
+newCatInput.focus();
+showToast('分类已添加');
+});
+newCatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault();
+addCatBtn.click(); } });
+catModalClose.addEventListener('click', closeCatManager);
+catModalDone.addEventListener('click', closeCatManager);
+catModalOverlay.addEventListener('click', function(e) { if (e.target === catModalOverlay) closeCatManager
+(); });
+settingsSaveBtn.addEventListener('click', function() {
+saveSettings();
+navigateTo('main');
+hideBackupReminder();
+sessionAddedCount = 0;
+sessionStorage.setItem(SESSION_ADDED_KEY, '0');
+showToast('设置已保存 ✓');
+});
+settingsResetBtn.addEventListener('click', function() {
+appSettings = { countThreshold: 20, dayThreshold: 7, reminderEnabled: true };
+setCountThreshold.value = 20;
+setDayThreshold.value = 7;
+setReminderEnabled.checked = true;
+saveSettings();
+navigateTo('main');
+hideBackupReminder();
+sessionAddedCount = 0;
+sessionStorage.setItem(SESSION_ADDED_KEY, '0');
+showToast('已恢复默认设置 ✓');
+});
+typeTabs.addEventListener('click', function(e) {
+const tab = e.target.closest('.type-tab');
+if (!tab) return;
+const type = tab.getAttribute('data-type');
+if (type !== currentType) {
+currentType = type;
+currentCategory = '全部';
+updateTypeTabUI();
+renderAll();
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+});
+
+document.addEventListener('keydown', function(e) {
+if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+e.preventDefault();
+
+}
+}
+if (e.key === 'Escape') {
+if (addTypeOverlay.classList.contains('active')) { closeAddTypePicker(); return; }
+if (catPickerOverlay.classList.contains('active')) { closeCatPicker(); return; }
+if (fullscreenEditor.classList.contains('active')) { closeFullscreenEditor(); return; }
+if (multiSelectMode) { exitMultiSelectMode(); return; }
+if (formModalOverlay.classList.contains('active')) closeFormModal();
+if (detailPage.classList.contains('active')) closeDetailPage();
+if (quotaModalOverlay.classList.contains('active')) quotaModalOverlay.classList.remove(
+'active');
+if (catModalOverlay.classList.contains('active')) closeCatManager();
+if (document.activeElement === searchPageInput) searchPageInput.blur();
+hideBackupReminder();
+}
+});
+function openAddTypePicker() {
+addTypeOverlay.classList.add('active');
+addTypePopup.classList.add('active');
+}
+function closeAddTypePicker() {
+addTypeOverlay.classList.remove('active');
+addTypePopup.classList.remove('active');
+}
+addTypeCard.addEventListener('click', function() {
+closeAddTypePicker();
+if (currentPage !== 'main') navigateTo('main');
+openFormModal('card', null);
+});
+addTypeQuote.addEventListener('click', function() {
+closeAddTypePicker();
+if (currentPage !== 'main') navigateTo('main');
+openFormModal('quote', null);
+});
+addTypeOverlay.addEventListener('click', closeAddTypePicker);
+bottomNavAdd.addEventListener('click', function() {
+openAddTypePicker();
+});
+
+// 底部导航点击
+bottomNav.addEventListener('click', function(e) {
+const navItem = e.target.closest('.nav-item');
+if (!navItem || navItem === bottomNavAdd) return;
+const page = navItem.getAttribute('data-page');
+if (page === 'main') {
+navigateTo('main');
+} else if (page === 'search') {
+navigateTo('search');
+} else if (page === 'backup') {
+navigateTo('backup');
+} else if (page === 'settings') {
+navigateTo('settings');
+}
+});
+
+// ========== 书童搜索 ==========
+function highlightText(text, query) {
+if (!query) return escapeHTML(text);
+const escaped = escapeHTML(text);
+const escapedQuery = escapeHTML(query);
+const regex = new RegExp('(' + escapedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+return escaped.replace(regex, '<mark>$1</mark>');
+}
+
+function performSearch(query) {
+query = query.trim().toLowerCase();
+searchPageResults.innerHTML = '';
+if (!query) {
+searchPageResults.innerHTML = `
+<div class="search-empty-state">
+<div class="empty-icon">🔍</div>
+<div class="empty-title">输入关键词开始搜索</div>
+<div class="empty-desc">支持搜索名称、释义、句子内容和来源</div>
+</div>`;
+return;
+}
+const queries = query.split(/\s+/).filter(q => q.length > 0);
+const results = appData.items.filter(item => {
+return queries.some(q => {
+if (item.type === 'card') {
+return (item.name || '').toLowerCase().includes(q) ||
+(item.description || '').toLowerCase().includes(q) ||
+(item.source || '').toLowerCase().includes(q);
+} else {
+return (item.content || '').toLowerCase().includes(q) ||
+(item.source || '').toLowerCase().includes(q) ||
+(item.note || '').toLowerCase().includes(q);
+}
+});
+});
+
+if (results.length === 0) {
+searchPageResults.innerHTML = `
+<div class="search-empty-state">
+<div class="empty-icon">😕</div>
+<div class="empty-title">没有找到匹配的内容</div>
+<div class="empty-desc">试试其他关键词？当前搜索："${escapeHTML(query)}"</div>
+</div>`;
+return;
+}
+
+results.forEach(item => {
+const div = document.createElement('div');
+div.className = 'search-result-item';
+const isCard = item.type === 'card';
+const title = isCard ? (item.name || '未命名') : (item.content || '').substring(0, 50);
+const snippet = isCard
+? (item.description || '').substring(0, 120)
+: (item.content || '').substring(0, 120);
+div.innerHTML = `
+<div class="result-header">
+<span class="result-type-badge ${isCard ? 'card-type' : 'quote-type'}">${isCard ? '名词' : '句子'}</span>
+<span class="result-title">${highlightText(title, query)}</span>
+</div>
+<div class="result-snippet">${highlightText(snippet, query)}</div>
+<div class="result-category">📂 ${escapeHTML(item.category)}${item.source ? ' · 📖 ' + escapeHTML(item.source) : ''}</div>
+`;
+div.addEventListener('click', () => openDetailPage(item.id));
+searchPageResults.appendChild(div);
+});
+}
+
+searchPageInput.addEventListener('input', function() {
+const val = this.value.trim();
+if (val.length > 0) searchPageClear.classList.add('visible');
+else searchPageClear.classList.remove('visible');
+performSearch(val);
+});
+searchPageClear.addEventListener('click', function() {
+searchPageInput.value = '';
+searchPageClear.classList.remove('visible');
+searchPageResults.innerHTML = '';
+searchPageInput.focus();
+});
+
+// ========== GitHub Gist 同步引擎 ==========
+const GIST_TOKEN = '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';
+const GIST_ID = '79d446e3256f26c72abc5a18cc4508c3';
+const GIST_FILE = 'notes.json';
+const SYNC_DEBOUNCE = 5000;
+const SYNC_TIMEOUT = 10000;
+let _syncTimer = null;
+let _syncing = false;
+let _syncRetryTimer = null;
+let _lastSyncOk = null;
+
+const syncDot = document.getElementById('syncDot');
+const syncDotText = document.getElementById('syncDotText');
+const syncStatusLine = document.getElementById('syncStatusLine');
+const syncNowBtn = document.getElementById('syncNowBtn');
+
+function _showSyncDot(text, isError) {
+    syncDotText.textContent = text || '同步中…';
+    syncDot.className = 'sync-dot visible' + (isError ? ' error' : '');
+}
+function _hideSyncDot() { syncDot.className = 'sync-dot'; }
+
+function _updateSyncUI(ok, msg) {
+    _lastSyncOk = ok;
+    if (syncStatusLine) {
+        syncStatusLine.className = ok ? 'sync-ok' : 'sync-err';
+        syncStatusLine.textContent = msg || (ok ? '同步成功' : '同步失败');
+    }
+}
+
+function scheduleGistSync() {
+    if (_syncTimer) clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(doGistSync, SYNC_DEBOUNCE);
+}
+
+async function doGistSync() {
+    if (_syncing) return;
+    _syncing = true;
+    _showSyncDot('同步中…');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), SYNC_TIMEOUT);
+    try {
+        const resp = await fetch('https://api.github.com/gists/' + GIST_ID, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': 'Bearer ' + GIST_TOKEN,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(appData) } } }),
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        _hideSyncDot();
+        const t = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        _updateSyncUI(true, '✅ 上次同步：' + t);
+        if (_syncRetryTimer) { clearTimeout(_syncRetryTimer); _syncRetryTimer = null; }
+    } catch (e) {
+        clearTimeout(timer);
+        _hideSyncDot();
+        const errMsg = e.name === 'AbortError' ? '请求超时，请检查网络' : (e.message || '未知错误');
+        _updateSyncUI(false, '❌ ' + errMsg + '，将自动重试');
+        if (!_syncRetryTimer) {
+            _syncRetryTimer = setTimeout(doGistSync, 30000);
+        }
+    } finally {
+        _syncing = false;
+    }
+}
+
+async function gistPull() {
+    _showSyncDot('拉取中…');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), SYNC_TIMEOUT);
+    try {
+        const resp = await fetch('https://api.github.com/gists/' + GIST_ID, {
+            headers: {
+                'Authorization': 'Bearer ' + GIST_TOKEN,
+                'Accept': 'application/vnd.github.v3+json'
+            },
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const gist = await resp.json();
+        const file = gist.files && gist.files[GIST_FILE];
+        if (!file || !file.content) throw new Error('文件不存在');
+        const data = JSON.parse(file.content);
+        if (data && Array.isArray(data.categories) && Array.isArray(data.items)) {
+            return data;
+        }
+        return null;
+    } catch (e) {
+        clearTimeout(timer);
+        throw e;
+    } finally {
+        _hideSyncDot();
+    }
+}
+
+if (syncNowBtn) {
+    syncNowBtn.addEventListener('click', async function() {
+        syncNowBtn.textContent = '⏳ 同步中…';
+        syncNowBtn.disabled = true;
+        try {
+            const remote = await gistPull();
+            if (remote) {
+                // Merge: remote items not in local get added
+                const localIds = new Set(appData.items.map(i => i.id));
+                remote.items.forEach(item => { if (!localIds.has(item.id)) appData.items.push(item); });
+                remote.categories.forEach(c => { if (!appData.categories.includes(c)) appData.categories.push(c); });
+                saveData();
+                renderAll();
+                const t = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                _updateSyncUI(true, '✅ 拉取并合并成功：' + t);
+                showToast('云端数据已拉取合并 ✓');
+            } else {
+                // Push local to remote
+                await doGistSync();
+                showToast('本地数据已推送到云端 ✓');
+            }
+        } catch (e) {
+            const errMsg = e.name === 'AbortError' ? '请求超时' : (e.message || '失败');
+            _updateSyncUI(false, '❌ ' + errMsg);
+            showToast('同步失败：' + errMsg);
+        } finally {
+            syncNowBtn.textContent = '🔄 立即同步';
+            syncNowBtn.disabled = false;
+        }
+    });
+}
+
+function init() {
+createAppleTouchIcon();
+loadData();
+loadSettings();
+updateTypeTabUI();
+navigateTo('main');
+renderAll();
+const session = sessionStorage.getItem(SESSION_ADDED_KEY);
+sessionAddedCount = session ? parseInt(session) : 0;
+setTimeout(checkBackupReminders, 2000);
+initPwa();
+// 注册 Service Worker（PWA 安装的必要条件）
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+}
+init();
+})();
+</script>
+
+<!-- 同步指示器 -->
+<div class="sync-dot" id="syncDot"><div class="spin"></div><span id="syncDotText">同步中…</span></div>
+
+</body>
+</html>
