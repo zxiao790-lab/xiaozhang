@@ -2042,6 +2042,14 @@ font-size: 1.1rem;
 </div>
 <div class="settings-section" id="installAppSection" style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 6px;">
 <h4>☁️ 云端同步</h4>
+<div class="settings-row" style="margin-bottom:8px;">
+<span style="font-size:0.82rem;color:var(--text-secondary);">Gist Token</span>
+<input type="password" id="setGistToken" placeholder="粘贴 ghp_ 开头的 token" style="flex:1;max-width:100%;margin-top:4px;font-size:0.78rem;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text-primary);outline:none;">
+</div>
+<div class="settings-row" style="margin-bottom:8px;">
+<span style="font-size:0.82rem;color:var(--text-secondary);">Gist ID</span>
+<input type="text" id="setGistId" placeholder="Gist ID" style="flex:1;max-width:100%;margin-top:4px;font-size:0.78rem;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text-primary);outline:none;">
+</div>
 <div class="sync-section" id="syncSection">
 <p id="syncStatusLine">未配置同步</p>
 </div>
@@ -3416,6 +3424,13 @@ catModalDone.addEventListener('click', closeCatManager);
 catModalOverlay.addEventListener('click', function(e) { if (e.target === catModalOverlay) closeCatManager
 (); });
 settingsSaveBtn.addEventListener('click', function() {
+const newToken = setGistToken ? setGistToken.value.trim() : '';
+const newGistId = setGistId ? setGistId.value.trim() : '';
+if (newToken) localStorage.setItem('gist_token', newToken);
+if (newGistId) localStorage.setItem('gist_id', newGistId);
+GIST_TOKEN = newToken;
+GIST_ID = newGistId || GIST_ID;
+_updateSyncUI(true, newToken ? 'Token 已配置' : '未配置同步');
 saveSettings();
 navigateTo('main');
 hideBackupReminder();
@@ -3589,9 +3604,14 @@ searchPageInput.focus();
 });
 
 // ========== GitHub Gist 同步引擎 ==========
-const GIST_TOKEN = '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';
-const GIST_ID = '79d446e3256f26c72abc5a18cc4508c3';
+let GIST_TOKEN = localStorage.getItem('gist_token') || '';
+let GIST_ID = localStorage.getItem('gist_id') || '79d446e3256f26c72abc5a18cc4508c3';
 const GIST_FILE = 'notes.json';
+
+const setGistToken = document.getElementById('setGistToken');
+const setGistId = document.getElementById('setGistId');
+if (setGistToken) setGistToken.value = GIST_TOKEN;
+if (setGistId) setGistId.value = GIST_ID;
 const SYNC_DEBOUNCE = 5000;
 const SYNC_TIMEOUT = 10000;
 let _syncTimer = null;
