@@ -3366,8 +3366,9 @@ detailPageEditBtn.addEventListener('click', function() {
 if (!detailItemId) return;
 const item = appData.items.find(i => i.id === detailItemId);
 if (!item) return;
+const editId = detailItemId;
 closeDetailPage();
-openFormModal(item.type, detailItemId);
+openFormModal(item.type, editId);
 });
 detailPageDeleteBtn.addEventListener('click', function() {
 if (!detailItemId) return;
