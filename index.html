@@ -320,6 +320,12 @@ align-items: center;
 gap: 4px;
 flex: 1;
 min-width: 0;
+transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.category-dropdown-group.hidden {
+opacity: 0;
+visibility: hidden;
+pointer-events: none;
 }
 .category-trigger-btn {
 flex: 1;
@@ -1253,7 +1259,7 @@ border: 1px solid var(--border-light);
 .detail-page-body .detail-body.quote-style {
 font-family: var(--font-serif);
 font-size: 1.05rem;
-text-align: center;
+text-align: left;
 padding: 20px 16px;
 line-height: 1.75;
 }
@@ -1578,6 +1584,8 @@ padding: 8px 14px;
 transition: border-color var(--transition), box-shadow var(--transition);
 margin-bottom: 14px;
 max-width: 480px;
+margin-left: auto;
+margin-right: auto;
 }
 .search-page-input-wrap:focus-within {
 border-color: var(--accent);
@@ -3191,6 +3199,7 @@ if (saveBar) saveBar.remove();
 detailPageDeleteBtn.style.display = '';
 detailPageEditBtn.style.display = '';
 if (item.type === 'card') {
+detailPageName.style.display = '';
 detailPageName.textContent = item.name || '未命名';
 detailPageMeta.innerHTML = `
 <span>📂 ${escapeHTML(item.category)}</span>
@@ -3198,8 +3207,7 @@ ${item.source ? `<span>📖 ${escapeHTML(item.source)}</span>` : ''}
 `;
 detailPageBody.innerHTML = `<div class="detail-body">${escapeHTML(item.description || '暂无释义')}</div>`;
 } else {
-const snippet = (item.content || '').length > 20 ? (item.content || '').substring(0, 20) + '…' : (item.content || '未命名');
-detailPageName.textContent = snippet;
+detailPageName.style.display = 'none';
 detailPageMeta.innerHTML = item.source ? `<span>✍ ${escapeHTML(item.source)}</span>` : '';
 let bodyHtml = `<div class="detail-body quote-style">${escapeHTML(item.content || '')}</div>`;
 if (item.note) {
