@@ -2506,34 +2506,8 @@ const SETTINGS_KEY = 'knowledge-cards-settings';
 const LAST_EXPORT_KEY = 'knowledge-cards-last-export';
 const SESSION_ADDED_KEY = 'knowledge-cards-session-added';
 const DEFAULT_CATEGORIES = ['经济学', '人文社科', '心理学', '哲学', '科技', '其他'];
-const PRESET_CARDS = [
-{ id: 'p1', type: 'card', category: '心理学', name: '破窗效应',
-description: '犯罪心理学理论。如果一扇窗户被打破而没有及时修复，很快其他窗户也会被打破。环境中的不良现象如果被放任存在，会诱使人们仿效，甚至变本加厉。该理论常用于社区治理和企业管理，说明了微小的失序如何逐步升级为严重的犯罪问题。',
-source: '《社会心理学》', createdAt: Date.now() - 900000 },
-{ id: 'p2', type: 'card', category: '经济学', name: '二八定律',
-description: '又称帕累托法则。认为80%的结果往往来自20%的原因。例如：80%的财富掌握在20%的人手中；80%的销售额来自20%的客户。核心思想是抓住关键少数，在时间管理、商业决策中广泛应用。',
-source: '帕累托', createdAt: Date.now() - 800000 },
-{ id: 'p3', type: 'card', category: '心理学', name: '马斯洛需求层次理论',
-description: '将人类需求从低到高分为五个层次：生理需求、安全需求、社交需求（归属与爱）、尊重需求和自我实现需求。只有当较低层次的需求得到满足后，人们才会追求更高层次的需求。该理论深刻影响了管理学和教育学。',
-source: '马斯洛', createdAt: Date.now() - 700000 },
-{ id: 'p4', type: 'card', category: '哲学', name: '奥卡姆剃刀',
-description: '哲学和科学中的重要原则。核心思想："如无必要，勿增实体。"在面对多个解释时，最简单的那个往往是最好的。提倡简洁和精炼，避免不必要的假设和复杂性，是现代科学方法论的重要基石。',
-source: '奥卡姆的威廉', createdAt: Date.now() - 600000 },
-{ id: 'p5', type: 'card', category: '人文社科', name: '蝴蝶效应',
-description: '混沌理论中的核心概念。指在一个动态系统中，初始条件的微小变化可能引发巨大的连锁反应。经典比喻：一只蝴蝶在巴西扇动翅膀，可能在美国德克萨斯州引起一场龙卷风。提醒我们关注系统的敏感依赖性。',
-source: '《混沌理论》', createdAt: Date.now() - 500000 },
-];
-const PRESET_QUOTES = [
-{ id: 'q1', type: 'quote', category: '哲学', content: '我思故我在。', source: '笛卡尔', note: '经典的存在论命题，强调了思考作为自我存在的证明。',
-createdAt: Date.now() - 400000 },
-{ id: 'q2', type: 'quote', category: '人文社科', content: '人是生而自由的，却无往不在枷锁之中。', source: '卢梭《社会契约论》', note: '',
-createdAt: Date.now() - 300000 },
-{ id: 'q3', type: 'quote', category: '经济学', content: '看不见的手引导着每个人在追求自身利益的同时，促进了社会的整体福祉。', source: '亚当·斯密《国富论》',
-note: '市场机制的核心隐喻。', createdAt: Date.now() - 200000 },
-{ id: 'q4', type: 'quote', category: '哲学', content: '存在先于本质。', source: '萨特', note: '存在主义的核心主张，强调人的自由与责任。',
-createdAt: Date.now() - 100000 },
-];
-
+const PRESET_CARDS = [];
+const PRESET_QUOTES = [];
 let appData = { categories: [...DEFAULT_CATEGORIES], items: [] };
 let appSettings = { countThreshold: 20, dayThreshold: 7, reminderEnabled: true };
 let currentType = 'card';
