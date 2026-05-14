@@ -159,6 +159,8 @@ display: flex;
 align-items: center;
 gap: 10px;
 flex-wrap: nowrap;
+max-width: 960px;
+margin: 0 auto;
 }
 .header-brand {
 display: flex;
@@ -262,9 +264,9 @@ transition: all var(--transition);
 
 /* 主容器 */
 .main-container {
-max-width: 600px;
+max-width: 960px;
 margin: 0 auto;
-padding: 6px 12px 10px;
+padding: 6px 16px 10px;
 }
 
 /* 工具栏：类型切换 + 分类下拉 */
@@ -465,10 +467,20 @@ background: var(--accent-light);
 
 /* 卡片网格 */
 .card-grid {
-display: flex;
-flex-direction: column;
+display: grid;
+grid-template-columns: 1fr;
 gap: 14px;
 padding-bottom: 8px;
+}
+@media (min-width: 481px) {
+.card-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+@media (min-width: 721px) {
+.card-grid {
+grid-template-columns: repeat(3, 1fr);
+}
 }
 
 /* 名词卡片 */
@@ -680,6 +692,7 @@ flex-direction: column;
 gap: 8px;
 animation: cardEnter 0.4s ease-out backwards;
 -webkit-tap-highlight-color: transparent;
+grid-column: 1 / -1;
 }
 .quote-card:hover {
 box-shadow: var(--shadow-md);
@@ -711,7 +724,7 @@ padding-left: 4px;
 padding-top: 4px;
 word-break: break-word;
 display: -webkit-box;
--webkit-line-clamp: 4;
+-webkit-line-clamp: 2;
 -webkit-box-orient: vertical;
 overflow: hidden;
 }
@@ -1470,6 +1483,8 @@ padding-top: 4px;
 display: none;
 text-align: center;
 padding: 20px 12px;
+max-width: 960px;
+margin: 0 auto;
 }
 .backup-page.visible {
 display: block;
@@ -1535,6 +1550,8 @@ transition: transform 0.1s ease;
 .settings-page {
 display: none;
 padding: 10px 12px;
+max-width: 960px;
+margin: 0 auto;
 }
 .settings-page.visible {
 display: block;
@@ -1544,6 +1561,8 @@ display: block;
 .search-page {
 display: none;
 padding: 10px 12px;
+max-width: 960px;
+margin: 0 auto;
 }
 .search-page.visible {
 display: block;
@@ -1558,6 +1577,7 @@ border-radius: var(--radius-full);
 padding: 8px 14px;
 transition: border-color var(--transition), box-shadow var(--transition);
 margin-bottom: 14px;
+max-width: 480px;
 }
 .search-page-input-wrap:focus-within {
 border-color: var(--accent);
@@ -2970,7 +2990,7 @@ return;
 function getFilteredItems() {
 let items = appData.items.filter(item =>
 item.type === currentType);
-if (currentCategory !== '全部') items = items.filter(item =>
+if (currentType === 'card' && currentCategory !== '全部') items = items.filter(item =>
 item.category === currentCategory);
 return items;
 }
@@ -3087,7 +3107,6 @@ div.style.animationDelay = `${index * 0.03}s`;
 const displayContent = quote.content && quote.content.length > 200 ? quote.content.substring(0, 200) +
 '…' : (quote.content || '');
 div.innerHTML = `
-<span class="quote-category-tag">${escapeHTML(quote.category)}</span>
 <div class="quote-content">${escapeHTML(displayContent)}</div>
 <div class="quote-source">${escapeHTML(quote.source || '未知来源')}</div>
 `;
@@ -3155,6 +3174,8 @@ function updateTypeTabUI() {
 typeTabs.querySelectorAll('.type-tab').forEach(tab => {
 tab.classList.toggle('active', tab.getAttribute('data-type') === currentType);
 });
+const catGroup = document.querySelector('.category-dropdown-group');
+if (catGroup) catGroup.classList.toggle('hidden', currentType === 'quote');
 }
 
 function openDetailPage(itemId) {
@@ -3179,10 +3200,7 @@ detailPageBody.innerHTML = `<div class="detail-body">${escapeHTML(item.descripti
 } else {
 const snippet = (item.content || '').length > 20 ? (item.content || '').substring(0, 20) + '…' : (item.content || '未命名');
 detailPageName.textContent = snippet;
-detailPageMeta.innerHTML = `
-<span>📂 ${escapeHTML(item.category)}</span>
-${item.source ? `<span>✍ ${escapeHTML(item.source)}</span>` : ''}
-`;
+detailPageMeta.innerHTML = item.source ? `<span>✍ ${escapeHTML(item.source)}</span>` : '';
 let bodyHtml = `<div class="detail-body quote-style">${escapeHTML(item.content || '')}</div>`;
 if (item.note) {
 bodyHtml += `<div class="detail-note"><div class="detail-note-label">📝 笔记</div>${escapeHTML(item.note)}</div>`;
@@ -3216,7 +3234,7 @@ formDesc.closest('.form-group').style.display = isCard ? '' : 'none';
 formQuoteContent.closest('.form-group').style.display = isCard ? 'none' : '';
 formQuoteSource.closest('.form-group').style.display = isCard ? 'none' : '';
 formNote.closest('.form-group').style.display = isCard ? 'none' : '';
-formCategory.closest('.form-group').style.display = '';
+formCategory.closest('.form-group').style.display = isCard ? '' : 'none';
 formModalTitle.textContent = isCard ? (itemId ? '编辑名词卡片' : '添加名词卡片') : (itemId ? '编辑句子' :
 '添加句子');
 if (itemId) {
@@ -3231,6 +3249,7 @@ formDesc.value = item.description || '';
 formQuoteContent.value = item.content || '';
 formQuoteSource.value = item.source || '';
 formNote.value = item.note || '';
+formCategory.value = item.category || appData.categories[0];
 }
 }
 } else {
@@ -3283,7 +3302,7 @@ item.content = content;
 item.source = quoteSource;
 item.note = note; }
 } else {
-appData.items.unshift({ id: generateId(), type: 'quote', category, content, source: quoteSource,
+appData.items.unshift({ id: generateId(), type: 'quote', category: '', content, source: quoteSource,
 note, createdAt: Date.now() });
 onNewItemAdded();
 }
