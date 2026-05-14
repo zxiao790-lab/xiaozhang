@@ -3894,6 +3894,20 @@ async function doGistSync() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), SYNC_TIMEOUT);
     try {
+        // Step 1: Pull remote and merge into local first
+        try {
+            const remote = await gistPull();
+            if (remote) {
+                const localIds = new Set(appData.items.map(i => i.id));
+                let merged = 0;
+                remote.items.forEach(item => { if (!localIds.has(item.id)) { appData.items.push(item); merged++; } });
+                remote.categories.forEach(c => { if (!appData.categories.includes(c)) appData.categories.push(c); });
+                if (merged > 0) { saveData(); renderAll(); }
+            }
+        } catch (pullErr) {
+            // Pull failed, still push local data
+        }
+        // Step 2: Push merged local data to remote
         const resp = await fetch('https://api.github.com/gists/' + GIST_ID, {
             method: 'PATCH',
             headers: {
