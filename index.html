@@ -169,15 +169,10 @@ flex-shrink: 0;
 .logo-icon {
 width: 36px;
 height: 36px;
-border-radius: var(--radius-xs);
-background: linear-gradient(135deg, #d4a574, #b8753e);
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 18px;
-color: #fff;
-box-shadow: 0 2px 8px rgba(184, 117, 62, 0.3);
+border-radius: var(--radius-md);
+object-fit: cover;
 flex-shrink: 0;
+box-shadow: 0 2px 8px rgba(184, 117, 62, 0.3);
 }
 .app-title {
 font-size: 1.05rem;
@@ -2104,7 +2099,7 @@ transform: scale(0.92);
 <!-- 头部 -->
 <header class="header" id="mainHeader">
 <div class="header-brand">
-<div class="logo-icon">📝</div>
+<img class="logo-icon" src="./icon-72x72.png" alt="小张书房">
 <h1 class="app-title">小张书房</h1>
 </div>
 <div class="header-spacer"></div>
@@ -3517,54 +3512,9 @@ return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').
 }
 
 function createAppleTouchIcon() {
-const canvas = document.createElement('canvas');
-canvas.width = 180;
-canvas.height = 180;
-const ctx = canvas.getContext('2d');
-const radius = 40;
-ctx.beginPath();
-ctx.moveTo(radius, 0);
-ctx.lineTo(180 - radius, 0);
-ctx.arcTo(180, 0, 180, radius, radius);
-ctx.lineTo(180, 180 - radius);
-ctx.arcTo(180, 180, 180 - radius, 180, radius);
-ctx.lineTo(radius, 180);
-ctx.arcTo(0, 180, 0, 180 - radius, radius);
-ctx.lineTo(0, radius);
-ctx.arcTo(0, 0, radius, 0, radius);
-ctx.closePath();
-const gradient = ctx.createLinearGradient(0, 0, 180, 180);
-gradient.addColorStop(0, '#d4a574');
-gradient.addColorStop(1, '#b8753e');
-ctx.fillStyle = gradient;
-ctx.fill();
-ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-ctx.beginPath();
-ctx.moveTo(60, 85);
-ctx.lineTo(60, 155);
-ctx.quadraticCurveTo(60, 162, 67, 162);
-ctx.lineTo(90, 148);
-ctx.lineTo(113, 162);
-ctx.quadraticCurveTo(120, 162, 120, 155);
-ctx.lineTo(120, 85);
-ctx.quadraticCurveTo(120, 78, 113, 78);
-ctx.lineTo(67, 78);
-ctx.quadraticCurveTo(60, 78, 60, 85);
-ctx.closePath();
-ctx.fill();
-ctx.fillStyle = '#b8753e';
-ctx.globalAlpha = 0.15;
-ctx.beginPath();
-ctx.moveTo(60, 85);
-ctx.lineTo(78, 85);
-ctx.lineTo(78, 67);
-ctx.closePath();
-ctx.fill();
-ctx.globalAlpha = 1;
-const dataUrl = canvas.toDataURL('image/png');
 const link = document.createElement('link');
 link.rel = 'apple-touch-icon';
-link.href = dataUrl;
+link.href = './apple-touch-icon.png';
 document.head.appendChild(link);
 }
 

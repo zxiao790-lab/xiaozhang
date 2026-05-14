@@ -1,10 +1,13 @@
-const CACHE_NAME = 'xiaozhang-v1';
+const CACHE_NAME = 'xiaozhang-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './icon-72x72.png',
   './icon-192x192.png',
-  './icon-512x512.png'
+  './icon-512x512.png',
+  './icon-splash-512x512.png',
+  './apple-touch-icon.png'
 ];
 
 // 安装：缓存核心文件
