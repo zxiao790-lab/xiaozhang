@@ -3707,6 +3707,12 @@ hideBackupReminder();
 sessionAddedCount = 0;
 sessionStorage.setItem(SESSION_ADDED_KEY, '0');
 showToast('设置已保存 ✓');
+// 自动触发首次同步
+if (newToken) {
+setTimeout(() => {
+if (syncNowBtn) syncNowBtn.click();
+}, 300);
+}
 });
 settingsResetBtn.addEventListener('click', function() {
 appSettings = { countThreshold: 20, dayThreshold: 7, reminderEnabled: true };
