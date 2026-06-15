@@ -3550,82 +3550,107 @@ pendingImportData = null;
 
 // Share functionality
 const detailPageShareBtn = document.getElementById('detailPageShareBtn');
-let sharedCardData = null;
 
 detailPageShareBtn.addEventListener('click', () => {
-const item = appData.items.find(i => i.id === detailItemId);
-if (!item || item.type !== 'card') return;
-const sharePayload = { type: 'card', name: item.name, category: item.category, description: item.description, source: item.source || '' };
-const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(sharePayload))));
-const shareUrl = window.location.origin + window.location.pathname + '#share=' + encoded;
-if (navigator.share) {
-navigator.share({ title: item.name + ' - 小张书房', text: item.name + '：' + (item.description || '').substring(0, 60), url: shareUrl }).catch(() => {});
-} else {
-navigator.clipboard.writeText(shareUrl).then(() => {
-showToast('分享链接已复制 ✓');
-}).catch(() => {
-prompt('复制以下链接分享：', shareUrl);
-});
-}
+    const item = appData.items.find(i => i.id === detailItemId);
+    if (!item || item.type !== 'card') return;
+    generateShareImage(item);
 });
 
-function checkSharedCard() {
-const hash = window.location.hash;
-if (!hash.startsWith('#share=')) return false;
-try {
-const encoded = hash.substring(7);
-const json = JSON.parse(decodeURIComponent(escape(atob(encoded))));
-if (json.type !== 'card') return false;
-sharedCardData = json;
-return true;
-} catch (e) {
-return false;
-}
+function generateShareImage(item) {
+    const W = 720;
+    const pad = 48;
+    const contentW = W - pad * 2;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Measure text to determine height
+    ctx.font = '600 22px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    const nameLines = wrapText(ctx, item.name || '未命名', contentW);
+    ctx.font = '400 15px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    const descText = item.description || '暂无释义';
+    const descLines = wrapText(ctx, descText, contentW);
+    const metaText = (item.category || '未分类') + (item.source ? ' · ' + item.source : '');
+
+    const nameH = nameLines.length * 32;
+    const descH = descLines.length * 24;
+    const metaH = 24;
+    const topPad = 56;
+    const bottomPad = 80;
+    const gap = 16;
+    const H = topPad + nameH + gap + metaH + gap + descH + bottomPad;
+
+    canvas.width = W;
+    canvas.height = H;
+
+    // Background
+    ctx.fillStyle = '#fffefb';
+    ctx.fillRect(0, 0, W, H);
+
+    // Top accent line
+    ctx.fillStyle = '#b8753e';
+    ctx.fillRect(0, 0, W, 4);
+
+    // Name
+    ctx.fillStyle = '#2c2416';
+    ctx.font = '600 22px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    let y = topPad;
+    nameLines.forEach(line => { ctx.fillText(line, pad, y); y += 32; });
+
+    // Meta (category + source)
+    y += gap - 8;
+    ctx.fillStyle = '#8c8276';
+    ctx.font = '400 13px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText(metaText, pad, y);
+
+    // Description
+    y += gap + 4;
+    ctx.fillStyle = '#5c5347';
+    ctx.font = '400 15px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    descLines.forEach(line => { ctx.fillText(line, pad, y); y += 24; });
+
+    // Bottom branding
+    ctx.fillStyle = '#b8753e';
+    ctx.font = '400 12px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText('小张书房', pad, H - 28);
+    ctx.fillStyle = '#c4b9ab';
+    ctx.font = '400 11px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif';
+    const appUrl = 'zxiao790-lab.github.io/xiaozhang';
+    ctx.fillText(appUrl, W - pad - ctx.measureText(appUrl).width, H - 28);
+
+    // Share or download
+    canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], (item.name || 'card') + '.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({ title: item.name + ' - 小张书房', files: [file] });
+            } catch (e) { /* cancelled */ }
+        } else {
+            // Fallback: download image
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (item.name || 'card') + '.png';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('卡片已保存到相册 ✓');
+        }
+    }, 'image/png');
 }
 
-function showSharedCard() {
-if (!sharedCardData) return;
-detailItemId = '__shared__';
-detailPageName.textContent = sharedCardData.name || '未命名';
-detailPageMeta.innerHTML = '<span>📂 ' + escapeHTML(sharedCardData.category || '未分类') + '</span>' +
-(sharedCardData.source ? '<span>📖 ' + escapeHTML(sharedCardData.source) + '</span>' : '');
-detailPageBody.innerHTML = '<div class="detail-body">' + escapeHTML(sharedCardData.description || '暂无释义') + '</div>';
-detailPageDeleteBtn.style.display = 'none';
-detailPageEditBtn.style.display = 'none';
-detailPageShareBtn.style.display = 'none';
-let saveBar = document.getElementById('shareSaveBar');
-if (!saveBar) {
-saveBar = document.createElement('div');
-saveBar.id = 'shareSaveBar';
-saveBar.className = 'share-save-bar';
-saveBar.innerHTML = '<span class="share-source-label">来自小张书房分享</span><button class="btn-save-card" id="shareSaveBtn">保存到我的书房</button>';
-detailPage.appendChild(saveBar);
-document.getElementById('shareSaveBtn').addEventListener('click', () => {
-const newItem = {
-id: Date.now().toString(36) + Math.random().toString(36).substr(2, 6),
-type: 'card',
-category: sharedCardData.category || '未分类',
-name: sharedCardData.name,
-description: sharedCardData.description,
-source: sharedCardData.source || '',
-createdAt: Date.now()
-};
-if (!appData.categories.includes(newItem.category)) {
-appData.categories.push(newItem.category);
-}
-appData.items.push(newItem);
-if (saveData()) {
-renderAll();
-showToast('已保存到我的书房 ✓');
-const bar = document.getElementById('shareSaveBar');
-if (bar) bar.innerHTML = '<span class="share-source-label" style="color:var(--success);">✓ 已保存</span>';
-}
-});
-}
-saveBar.style.display = 'flex';
-detailPage.classList.add('active');
-detailPageBody.scrollTop = 0;
-history.replaceState(null, '', window.location.pathname);
+function wrapText(ctx, text, maxWidth) {
+    const lines = [];
+    let line = '';
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '\n') { lines.push(line); line = ''; continue; }
+        const test = line + ch;
+        if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = ch; }
+        else { line = test; }
+    }
+    if (line) lines.push(line);
+    return lines.length ? lines : [''];
 }
 quotaExportBtn.addEventListener('click', () => { exportData();
 quotaModalOverlay.classList.remove('active'); });
@@ -4044,7 +4069,6 @@ loadSettings();
 updateTypeTabUI();
 navigateTo('main');
 renderAll();
-if (checkSharedCard()) { showSharedCard(); }
 const session = sessionStorage.getItem(SESSION_ADDED_KEY);
 sessionAddedCount = session ? parseInt(session) : 0;
 setTimeout(checkBackupReminders, 2000);
