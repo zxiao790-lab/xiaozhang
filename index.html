@@ -3725,9 +3725,14 @@ if (newToken) localStorage.setItem('gist_token', newToken);
 if (newGistId) localStorage.setItem('gist_id', newGistId);
 GIST_TOKEN = newToken;
 GIST_ID = newGistId || GIST_ID;
-_updateSyncUI(true, newToken ? 'Token 已配置' : '未配置同步');
 saveSettings();
 navigateTo('main');
+if (newToken) {
+    showToast('Token 已保存，正在同步…');
+    doGistSync();
+} else {
+    _updateSyncUI(false, '未配置同步');
+}
 hideBackupReminder();
 sessionAddedCount = 0;
 sessionStorage.setItem(SESSION_ADDED_KEY, '0');
